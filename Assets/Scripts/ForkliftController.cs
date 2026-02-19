@@ -22,6 +22,14 @@ public class ForkliftController : MonoBehaviour
 
 	[SerializeField]
 	private float MaxSpeed = 5f;
+	private float MoveSpeed;
+
+	private float Tachos;
+
+	[SerializeField]
+	private float MaxTachos = 5f;
+	[SerializeField]
+	private float MinTachos = 1f;
 
 	[SerializeField]
 	private Transform Stear;
@@ -37,16 +45,22 @@ public class ForkliftController : MonoBehaviour
 	[SerializeField]
 	private Wheel WheelBackwardRight;
 
-	private float WheelSpeed;
-	private float WheelVelocity;
+	[SerializeField]
+	private float Fuel = 60;
+
+	[SerializeField]
+	private float MaxFuel = 60;
+
 
 	[SerializeField]
 	private PaletteLocker Locker;
 
+	[SerializeField]
+	private DialsPanel Dials;
+
 	private void Awake()
 	{
 		Rg = GetComponent<Rigidbody>();
-		Locker = GetComponentInChildren<PaletteLocker>();
 		Locker.Locked += (locked) => PalleteLocked.Invoke(locked);
 	}
 	private Rigidbody Rg;
@@ -55,7 +69,16 @@ public class ForkliftController : MonoBehaviour
 
 	public Action<bool> EngineChangeState;
 
-	public bool EngineState { get; private set; }
+	public bool EngineState
+	{
+		get => _engineState;
+		set
+		{
+			_engineState = value;
+			EngineChangeState?.Invoke(EngineState);
+		}
+	}
+	private bool _engineState = false;
 
 	private void LateUpdate()
 	{
@@ -66,13 +89,6 @@ public class ForkliftController : MonoBehaviour
 			Camera.main.transform.parent = CamTran;
 			Camera.main.transform.localPosition = Vector3.zero;
 			Camera.main.transform.localRotation = Quaternion.identity;
-		}
-
-		if (Keyboard.current.tKey.wasPressedThisFrame)
-		{
-			EngineState = !EngineState;
-
-			EngineChangeState?.Invoke(EngineState);
 		}
 
 		var delta = Mouse.current.delta.ReadValue();
@@ -107,18 +123,23 @@ public class ForkliftController : MonoBehaviour
 	{
 		if (Keyboard.current == null) return;
 
+		if (Keyboard.current.tKey.wasPressedThisFrame && Fuel > 0)
+		{
+			EngineState = !EngineState;
+		}
+
 		if (Keyboard.current.qKey.isPressed && EngineState)
 		{
 			Locker.State = PalleteLockerState.Up;
 
 			fork.transform.localPosition = Vector3.MoveTowards(fork.transform.localPosition,
-					new Vector3(0, 3f, 0), MaxSpeedLift * Time.deltaTime);
+					new Vector3(0, 3f, 0), MaxSpeedLift * Time.fixedDeltaTime);
 
 
 			if (fork.transform.localPosition.y > 1.5f)
 			{
 				mast.transform.localPosition = Vector3.MoveTowards(mast.transform.localPosition,
-				new Vector3(0, 1.5f, 0), MaxSpeedLift * Time.deltaTime);
+				new Vector3(0, 1.5f, 0), MaxSpeedLift * Time.fixedDeltaTime);
 			}
 		}
 		else if (Keyboard.current.eKey.isPressed || !EngineState)
@@ -126,9 +147,9 @@ public class ForkliftController : MonoBehaviour
 			Locker.State = PalleteLockerState.Down;
 
 			fork.transform.localPosition = Vector3.MoveTowards(fork.transform.localPosition,
-				Vector3.zero, MaxSpeedLift * Time.deltaTime);
+				Vector3.zero, MaxSpeedLift * Time.fixedDeltaTime);
 			mast.transform.localPosition = Vector3.MoveTowards(mast.transform.localPosition,
-				Vector3.zero, MaxSpeedLift * Time.deltaTime);
+				Vector3.zero, MaxSpeedLift * Time.fixedDeltaTime);
 		}
 		else
 		{
@@ -138,24 +159,58 @@ public class ForkliftController : MonoBehaviour
 
 		if (Keyboard.current.wKey.isPressed && EngineState)
 		{
-			WheelSpeed = Mathf.Clamp(WheelSpeed + 5 * Time.deltaTime, -MaxSpeed, MaxSpeed);
+			Tachos = Mathf.Clamp(Tachos + 5 * Time.fixedDeltaTime, MinTachos, MaxTachos);
+			MoveSpeed = Mathf.Clamp(MoveSpeed + Tachos * Time.fixedDeltaTime, -MaxSpeed, MaxSpeed);
 		}
 		else if (Keyboard.current.sKey.isPressed && EngineState)
 		{
-			WheelSpeed = Mathf.Clamp(WheelSpeed - 5 * Time.deltaTime, -MaxSpeed, MaxSpeed);
+			if(MoveSpeed > 0)
+			{
+				Tachos = Mathf.Clamp(Tachos - 5 * Time.fixedDeltaTime, MinTachos, MaxTachos);
+				MoveSpeed = Mathf.Clamp(MoveSpeed - 5 * Time.fixedDeltaTime, 0, MaxSpeed);
+			}
+			else
+			{
+				Tachos = Mathf.Clamp(Tachos + 5 * Time.fixedDeltaTime, MinTachos, MaxTachos);
+				MoveSpeed = Mathf.Clamp(MoveSpeed - Tachos * Time.fixedDeltaTime, -MaxSpeed, MaxSpeed);
+			}
 		}
 		else
 		{
-			if (WheelSpeed > 0)
+			if (EngineState)
 			{
-				WheelSpeed = Mathf.Clamp(WheelSpeed - 1 * Time.deltaTime, 0, MaxSpeed);
+				if(Tachos < MinTachos)
+				{
+					Tachos = Mathf.Clamp(Tachos + 5 * Time.fixedDeltaTime, 0, MinTachos);
+				}
+				else
+				{
+					Tachos = Mathf.Clamp(Tachos - 5 * Time.fixedDeltaTime, MinTachos, MaxTachos);
+				}
 			}
-			else if (WheelSpeed < 0)
+			else
 			{
-				WheelSpeed = Mathf.Clamp(WheelSpeed + 1 * Time.deltaTime, -MaxSpeed, 0);
+				Tachos = Mathf.Clamp(Tachos - 5 * Time.fixedDeltaTime, 0, MaxTachos);
+			}
+
+			if (MoveSpeed > 0)
+			{
+				MoveSpeed = Mathf.Clamp(MoveSpeed - 1 * Time.fixedDeltaTime, 0, MaxSpeed);
+			}
+			else if (MoveSpeed < 0)
+			{
+				MoveSpeed = Mathf.Clamp(MoveSpeed + 1 * Time.fixedDeltaTime, -MaxSpeed, 0);
 			}
 		}
 
+		Fuel = Mathf.Clamp(Fuel - Tachos / MaxTachos * Time.fixedDeltaTime, 0, MaxFuel);
+		if(Fuel == 0)
+		{
+			EngineState = false;
+		}
+
+
+		Dials.SetValues(Tachos / MaxTachos, MathF.Abs(MoveSpeed) / MaxSpeed, Fuel / MaxFuel);
 
 
 		float h = 0f;
@@ -169,11 +224,11 @@ public class ForkliftController : MonoBehaviour
 			// возвращаем руль в исходное положение
 			if (StearAngle > 0)
 			{
-				StearAngle = Mathf.Clamp(StearAngle - steerSpeed * Time.deltaTime, 0, 1);
+				StearAngle = Mathf.Clamp(StearAngle - steerSpeed * Time.fixedDeltaTime, 0, 1);
 			}
 			else if (StearAngle < 0)
 			{
-				StearAngle = Mathf.Clamp(StearAngle + steerSpeed * Time.deltaTime, -1, 0);
+				StearAngle = Mathf.Clamp(StearAngle + steerSpeed * Time.fixedDeltaTime, -1, 0);
 			}
 		}
 		else if (EngineState)
@@ -185,7 +240,7 @@ public class ForkliftController : MonoBehaviour
 					steerSpeed = 1;
 				}
 
-				StearAngle = Mathf.Clamp(StearAngle + steerSpeed * Time.deltaTime, -1, 1);
+				StearAngle = Mathf.Clamp(StearAngle + steerSpeed * Time.fixedDeltaTime, -1, 1);
 			}
 			else if (h < 0)
 			{
@@ -194,7 +249,7 @@ public class ForkliftController : MonoBehaviour
 					steerSpeed = 1;
 				}
 
-				StearAngle = Mathf.Clamp(StearAngle - steerSpeed * Time.deltaTime, -1, 1);
+				StearAngle = Mathf.Clamp(StearAngle - steerSpeed * Time.fixedDeltaTime, -1, 1);
 			}
 		}
 
@@ -207,18 +262,18 @@ public class ForkliftController : MonoBehaviour
 
 		// ---------- Передние колёса ----------
 
-		WheelForwardLeft.SetRotation(WheelSpeed, steerWheelAngle);
+		WheelForwardLeft.SetRotation(MoveSpeed, steerWheelAngle);
 
-		WheelForwardRight.SetRotation(WheelSpeed, steerWheelAngle);
+		WheelForwardRight.SetRotation(MoveSpeed, steerWheelAngle);
 
 		// ---------- Задние колёса ----------
 
-		WheelBackwardLeft.SetRotation(WheelSpeed, 0);
+		WheelBackwardLeft.SetRotation(MoveSpeed, 0);
 
-		WheelBackwardRight.SetRotation(WheelSpeed, 0);
+		WheelBackwardRight.SetRotation(MoveSpeed, 0);
 
 		// Преобразуем в глобальные координаты
-		Vector3 globalVelocity = transform.TransformDirection(new Vector3(0f, 0f, WheelSpeed));
+		Vector3 globalVelocity = transform.TransformDirection(new Vector3(0f, 0f, MoveSpeed));
 
 		// Применяем линейную и угловую скорость к Rigidbody
 		Rg.linearVelocity = new Vector3(globalVelocity.x, Rg.linearVelocity.y, globalVelocity.z); // сохраняем y для гравитации
@@ -231,7 +286,7 @@ public class ForkliftController : MonoBehaviour
 		{
 			// Используем формулу Ackermann через угол рулевых колес
 			float steerRad = steerWheelAngle * Mathf.Deg2Rad;
-			angularY = (WheelSpeed / turnRadius) * Mathf.Tan(steerRad) * Mathf.Rad2Deg * Time.fixedDeltaTime;
+			angularY = (MoveSpeed / turnRadius) * Mathf.Tan(steerRad) * Mathf.Rad2Deg * Time.fixedDeltaTime;
 		}
 
 		transform.Rotate(0f, angularY, 0f, Space.World);

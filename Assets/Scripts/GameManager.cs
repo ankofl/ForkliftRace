@@ -7,6 +7,9 @@ public class GameManager : MonoBehaviour
 	private Camera MainCamera;
 
 	[SerializeField]
+	private FadeController Fade;
+
+	[SerializeField]
 	private TextMesh Tooltip;
 
 	[SerializeField]
@@ -22,8 +25,11 @@ public class GameManager : MonoBehaviour
 	{
 		MainCamera = Camera.main;
 
+		Fade = MainCamera.GetComponentInChildren<FadeController>();
+		Fade.SetFade(1, 0, 2, 1);
+
 		Tooltip = MainCamera.GetComponentInChildren<TextMesh>();
-		Tooltip.text = "Sturtup Engine [T]";
+		Tooltip.text = "Startup Engine [T]";
 
 
 		Loading.SpawnPallete();
@@ -43,7 +49,7 @@ public class GameManager : MonoBehaviour
 		}
 		else
 		{
-			Tooltip.text = "Sturtup Engine [T]";
+			Tooltip.text = "Startup Engine [T]";
 		}
 	}
 

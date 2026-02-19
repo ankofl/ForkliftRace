@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1533319812225543472}
   - component: {fileID: 7044284687886459577}
   - component: {fileID: 6362012613479883479}
+  - component: {fileID: 3351921709347627153}
   m_Layer: 0
   m_Name: Plane
   m_TagString: Untagged
@@ -66,7 +67,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: fdfe078ba848ccc41b63f7f58d537656, type: 2}
+  - {fileID: -876546973899608171, guid: d87855bab806aa14b94aee02e9f5bbbd, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -90,6 +91,19 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &3351921709347627153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 492369821945764498}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de05590ef60ee7b4aa559269f41b9f89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PerInstanceColor
+  instanceColor: {r: 0.33653757, g: 0.554717, b: 0, a: 1}
 --- !u!1 &6072429000461872275
 GameObject:
   m_ObjectHideFlags: 0
