@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 [RequireComponent(typeof(Rigidbody))]
 public class Pallete : MonoBehaviour
@@ -11,24 +12,29 @@ public class Pallete : MonoBehaviour
 		Colliders = new List<BoxCollider>();
 		foreach (var collider in GetComponentsInChildren<BoxCollider>(true))
 		{
-			Colliders.Add(collider);
+			if(collider.name != "Cargo")
+			{
+				Colliders.Add(collider);
+			}
 		}
 	}
 	List<BoxCollider> Colliders;
 
-	public bool IsKinematic
+	public void Lock(Transform tran)
 	{
-		get => Rb.isKinematic;
-		set
-		{
-			Rb.isKinematic = value;
+		Locked = tran != null;
 
-			foreach (var collider in Colliders)
-			{
-				collider.isTrigger = value;
-			}
+		Rb.isKinematic = Locked;
+
+		foreach (var collider in Colliders)
+		{
+			collider.isTrigger = Locked;
 		}
+
+		transform.SetParent(tran);
 	}
+
+	public bool Locked { get; private set; }
 
 	private Rigidbody Rb;
 }

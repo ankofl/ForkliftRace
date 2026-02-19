@@ -18,11 +18,7 @@ public class PaletteLocker : MonoBehaviour
 
 				foreach (var pallete in children)
 				{
-					// 1. Отцепляем от родителя
-					pallete.transform.SetParent(null);
-
-					// 2. Очень важно - возвращаем физику в нормальное состояние
-					pallete.IsKinematic = false;
+					pallete.Lock(null);
 				}
 			}
 		}
@@ -34,19 +30,11 @@ public class PaletteLocker : MonoBehaviour
 		if (_state != PalleteLockerState.Up)
 			return;
 
-		if (other == null || other.transform == null || other.transform.parent == null)
-			return;
-
 		// Проверяем родителя коллайдера
-		if (!other.transform.parent.TryGetComponent<Pallete>(out var pallete))
-			return;
-
-		if (Vector3.Distance(transform.position, pallete.transform.position) > 0.2f ||
-			Mathf.Abs(transform.position.y - pallete.transform.position.y) > 0.1f)
+		if (!other.TryGetComponent<Pallete>(out var pallete))
 			return;
 
 		// Фиксируем
-		pallete.IsKinematic = true;
-		pallete.transform.SetParent(transform);
+		pallete.Lock(transform);
 	}
 }
