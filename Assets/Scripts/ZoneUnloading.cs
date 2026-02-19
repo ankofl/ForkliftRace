@@ -14,7 +14,7 @@ public class ZoneUnloading : MonoBehaviour
 		if (!other.TryGetComponent(out Pallete pallete))
 			return;
 
-		if (pallete.Locked)
+		if (pallete.Locked || pallete.transform.position.y > 0.01f)
 			return;
 
 		SetTriggerState(false);

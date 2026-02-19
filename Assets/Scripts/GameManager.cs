@@ -23,15 +23,45 @@ public class GameManager : MonoBehaviour
 		MainCamera = Camera.main;
 
 		Tooltip = MainCamera.GetComponentInChildren<TextMesh>();
+		Tooltip.text = "Sturtup Engine [T]";
+
 
 		Loading.SpawnPallete();
 
 		Unloading.Delivered += Delivered;
+
+
+		Forklift.EngineChangeState += OnEngineChangeState;
+		Forklift.PalleteLocked += OnPalleteLocked; 
+	}
+
+	private void OnEngineChangeState(bool state)
+	{
+		if (state)
+		{
+			Tooltip.text = "Move [WASD] | Up/Down [Q/E]";
+		}
+		else
+		{
+			Tooltip.text = "Sturtup Engine [T]";
+		}
+	}
+
+	private void OnPalleteLocked(bool locked)
+	{
+		if (locked && Forklift.EngineState)
+		{
+			Tooltip.text = "Release Pallete [E] on [Unloading Zone]";
+		}
+		else if(Forklift.EngineState)
+		{
+			Tooltip.text = "Pickup Pallete [Q] on [Loading Zone]";
+		}
 	}
 
 	private void Delivered(Pallete pallete)
 	{
-		Tooltip.text = "Delivered";
+		Tooltip.text = "Delivered!";
 		Destroy(pallete.gameObject);
 
 		Loading.SpawnPallete();

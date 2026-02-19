@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.InputSystem;
+using System;
 
 [RequireComponent(typeof(Rigidbody))]
 public class ForkliftController : MonoBehaviour
 {
-	[SerializeField] 
+	[SerializeField]
 	private float sensitivity = 0.3f;
 
 	[SerializeField]
@@ -30,7 +31,7 @@ public class ForkliftController : MonoBehaviour
 	[SerializeField]
 	private Wheel WheelForwardLeft;
 	[SerializeField]
-	private Wheel WheelForwardRight; 
+	private Wheel WheelForwardRight;
 	[SerializeField]
 	private Wheel WheelBackwardLeft;
 	[SerializeField]
@@ -46,18 +47,32 @@ public class ForkliftController : MonoBehaviour
 	{
 		Rg = GetComponent<Rigidbody>();
 		Locker = GetComponentInChildren<PaletteLocker>();
+		Locker.Locked += (locked) => PalleteLocked.Invoke(locked);
 	}
 	private Rigidbody Rg;
+
+	public Action<bool> PalleteLocked;
+
+	public Action<bool> EngineChangeState;
+
+	public bool EngineState { get; private set; }
 
 	private void LateUpdate()
 	{
 		if (Camera.main == null || Mouse.current == null) return;
 
-		if(Camera.main.transform.parent == null)
+		if (Camera.main.transform.parent == null)
 		{
 			Camera.main.transform.parent = CamTran;
 			Camera.main.transform.localPosition = Vector3.zero;
 			Camera.main.transform.localRotation = Quaternion.identity;
+		}
+
+		if (Keyboard.current.tKey.wasPressedThisFrame)
+		{
+			EngineState = !EngineState;
+
+			EngineChangeState?.Invoke(EngineState);
 		}
 
 		var delta = Mouse.current.delta.ReadValue();
@@ -87,27 +102,26 @@ public class ForkliftController : MonoBehaviour
 		return angle;
 	}
 
-	// Update is called once per frame
+
 	void FixedUpdate()
 	{
 		if (Keyboard.current == null) return;
 
-
-		if (Keyboard.current.qKey.isPressed)
+		if (Keyboard.current.qKey.isPressed && EngineState)
 		{
 			Locker.State = PalleteLockerState.Up;
 
 			fork.transform.localPosition = Vector3.MoveTowards(fork.transform.localPosition,
 					new Vector3(0, 3f, 0), MaxSpeedLift * Time.deltaTime);
-			
 
-			if(fork.transform.localPosition.y > 1.5f)
+
+			if (fork.transform.localPosition.y > 1.5f)
 			{
 				mast.transform.localPosition = Vector3.MoveTowards(mast.transform.localPosition,
 				new Vector3(0, 1.5f, 0), MaxSpeedLift * Time.deltaTime);
-			}			
+			}
 		}
-		else if (Keyboard.current.eKey.isPressed)
+		else if (Keyboard.current.eKey.isPressed || !EngineState)
 		{
 			Locker.State = PalleteLockerState.Down;
 
@@ -122,17 +136,17 @@ public class ForkliftController : MonoBehaviour
 		}
 
 
-		if (Keyboard.current.wKey.isPressed)
+		if (Keyboard.current.wKey.isPressed && EngineState)
 		{
 			WheelSpeed = Mathf.Clamp(WheelSpeed + 5 * Time.deltaTime, -MaxSpeed, MaxSpeed);
 		}
-		else if (Keyboard.current.sKey.isPressed)
+		else if (Keyboard.current.sKey.isPressed && EngineState)
 		{
 			WheelSpeed = Mathf.Clamp(WheelSpeed - 5 * Time.deltaTime, -MaxSpeed, MaxSpeed);
 		}
 		else
 		{
-			if(WheelSpeed > 0)
+			if (WheelSpeed > 0)
 			{
 				WheelSpeed = Mathf.Clamp(WheelSpeed - 1 * Time.deltaTime, 0, MaxSpeed);
 			}
@@ -142,7 +156,7 @@ public class ForkliftController : MonoBehaviour
 			}
 		}
 
-		
+
 
 		float h = 0f;
 		if (Keyboard.current.dKey.isPressed) h += 1f;
@@ -150,30 +164,30 @@ public class ForkliftController : MonoBehaviour
 
 		var steerSpeed = 2f;
 
-		if(h == 0)
+		if (h == 0)
 		{
 			// возвращаем руль в исходное положение
-			if(StearAngle > 0)
+			if (StearAngle > 0)
 			{
 				StearAngle = Mathf.Clamp(StearAngle - steerSpeed * Time.deltaTime, 0, 1);
 			}
-			else if(StearAngle < 0)
+			else if (StearAngle < 0)
 			{
 				StearAngle = Mathf.Clamp(StearAngle + steerSpeed * Time.deltaTime, -1, 0);
 			}
 		}
-		else
+		else if (EngineState)
 		{
 			if (h > 0)
 			{
-				if(StearAngle < 0)
+				if (StearAngle < 0)
 				{
 					steerSpeed = 1;
 				}
 
 				StearAngle = Mathf.Clamp(StearAngle + steerSpeed * Time.deltaTime, -1, 1);
 			}
-			else if(h < 0)
+			else if (h < 0)
 			{
 				if (StearAngle > 0)
 				{

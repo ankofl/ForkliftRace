@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public enum PalleteLockerState { Stay, Down, Up }
@@ -13,17 +14,18 @@ public class PaletteLocker : MonoBehaviour
 
 			if (_state == PalleteLockerState.Down)
 			{
-				// Ќаходим все подцепленные паллеты (на случай, если их несколько)
-				var children = transform.GetComponentsInChildren<Pallete>(true);
-
-				foreach (var pallete in children)
+				var pallete = transform.GetComponentInChildren<Pallete>(true);
+				if(pallete != null)
 				{
 					pallete.Lock(null);
+					Locked?.Invoke(false);
 				}
 			}
 		}
 	}
 	private PalleteLockerState _state;
+
+	public Action<bool> Locked;
 
 	private void OnTriggerStay(Collider other)
 	{
@@ -36,5 +38,7 @@ public class PaletteLocker : MonoBehaviour
 
 		// ‘иксируем
 		pallete.Lock(transform);
+
+		Locked?.Invoke(true);
 	}
 }
