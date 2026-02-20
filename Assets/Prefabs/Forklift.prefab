@@ -180,7 +180,7 @@ MonoBehaviour:
   WheelForwardRight: {fileID: 2229240756039138880}
   WheelBackwardLeft: {fileID: 5947674497910433497}
   WheelBackwardRight: {fileID: 8629833775861665694}
-  MaxFuel: 5
+  MaxFuel: 60
   Locker: {fileID: 8563743291081970178}
   Dials: {fileID: 1184052663749110450}
 --- !u!1 &1000011434685428

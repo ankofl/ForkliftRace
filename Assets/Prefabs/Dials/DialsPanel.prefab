@@ -378,6 +378,10 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: -8911665020072429675, guid: 20285ac77aa03834f8f914eb2a6f898f, type: 3}
+      propertyPath: label
+      value: km/h
+      objectReference: {fileID: 0}
+    - target: {fileID: -8911665020072429675, guid: 20285ac77aa03834f8f914eb2a6f898f, type: 3}
       propertyPath: DialText
       value: km/h
       objectReference: {fileID: 0}
@@ -463,6 +467,10 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: -8911665020072429675, guid: 20285ac77aa03834f8f914eb2a6f898f, type: 3}
+      propertyPath: label
+      value: Fuel
+      objectReference: {fileID: 0}
+    - target: {fileID: -8911665020072429675, guid: 20285ac77aa03834f8f914eb2a6f898f, type: 3}
       propertyPath: DialText
       value: FUEL
       objectReference: {fileID: 0}
@@ -508,7 +516,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6000441572692863033, guid: 20285ac77aa03834f8f914eb2a6f898f, type: 3}
       propertyPath: m_Text
-      value: FUEL
+      value: Fuel
       objectReference: {fileID: 0}
     - target: {fileID: 6637694022906040401, guid: 20285ac77aa03834f8f914eb2a6f898f, type: 3}
       propertyPath: m_Name
@@ -546,6 +554,10 @@ PrefabInstance:
     - target: {fileID: -8911665020072429675, guid: 20285ac77aa03834f8f914eb2a6f898f, type: 3}
       propertyPath: Type
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8911665020072429675, guid: 20285ac77aa03834f8f914eb2a6f898f, type: 3}
+      propertyPath: label
+      value: x1000
       objectReference: {fileID: 0}
     - target: {fileID: -8911665020072429675, guid: 20285ac77aa03834f8f914eb2a6f898f, type: 3}
       propertyPath: DialText

@@ -23,7 +23,7 @@ public class GameManager : MonoBehaviour
 	/// Текстовая подсказка игроку
 	/// </summary>
 	[SerializeField]
-	private TextMesh Tooltip;
+	private Tooltip Tooltip;
 
 	/// <summary>
 	/// Контроллер погрузчика
@@ -68,10 +68,10 @@ public class GameManager : MonoBehaviour
 		Fade.SetFade(1, 0, 2, 1);
 
 		// Получаем текст подсказки
-		Tooltip = MainCamera.GetComponentInChildren<TextMesh>();
+		Tooltip = MainCamera.GetComponentInChildren<Tooltip>();
 
 		// Начальный текст
-		Tooltip.text = "Startup Engine [T]";
+		Tooltip.Text = "Startup Engine [T]";
 
 		// Спавним первую паллету
 		Loading.SpawnPallete(ref SpawnedPallete);
@@ -130,17 +130,17 @@ public class GameManager : MonoBehaviour
 	{
 		if (state)
 		{
-			Tooltip.text = "Move [WASD] | Up/Down [Q/E]";
+			Tooltip.Text = "Move [WASD] | Up/Down [Q/E]";
 			return;
 		}
 
 		if (Forklift.Fuel > 0)
 		{
-			Tooltip.text = "Startup Engine [T]";
+			Tooltip.Text = "Startup Engine [T]";
 			return;
 		}
 
-		Tooltip.text = "Fuel ended! Restarting...";
+		Tooltip.Text = "Fuel ended! Restarting...";
 	}
 
 	/// <summary>
@@ -153,11 +153,11 @@ public class GameManager : MonoBehaviour
 
 		if (locked)
 		{
-			Tooltip.text = "Release Pallete [E] on [Unloading Zone]";
+			Tooltip.Text = "Release Pallete [E] on [Unloading Zone]";
 			return;
 		}
 
-		Tooltip.text = "Pickup Pallete [Q] on [Loading Zone]";
+		Tooltip.Text = "Pickup Pallete [Q] on [Loading Zone]";
 	}
 
 	/// <summary>
@@ -166,7 +166,7 @@ public class GameManager : MonoBehaviour
 	private async void Delivered()
 	{
 		// Текст успешной доставки
-		Tooltip.text = "Delivered!";
+		Tooltip.Text = "Delivered!";
 
 		// Анимация выгрузки
 		await SpawnedPallete.Anim(PalleteAnimType.UnloadingZone);
