@@ -149,4 +149,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 563f25616e2cb4d4d843e3943922eb68, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZoneLoading
-  PalletePrefab: {fileID: 6682884968333817195, guid: f3a2bdf629453a94da066a94851ba2ba, type: 3}
+  palletePrefab: {fileID: 6682884968333817195, guid: f3a2bdf629453a94da066a94851ba2ba, type: 3}
