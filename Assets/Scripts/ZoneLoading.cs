@@ -2,18 +2,28 @@ using UnityEngine;
 
 public class ZoneLoading : MonoBehaviour
 {
-    [SerializeField]
-    private Pallete PalletePrefab;
+	/// <summary>
+	/// Префаб паллеты для спавна
+	/// </summary>
+	[SerializeField, Tooltip("Префаб паллеты для спавна")]
+	private Pallete palletePrefab;
 
-
+	/// <summary>
+	/// Создаёт новую паллету на позиции зоны загрузки
+	/// </summary>
+	/// <param name="pallete">Ссылка на текущую паллету</param>
 	public void SpawnPallete(ref Pallete pallete)
-    {
-        if(pallete != null)
-        {
-            Destroy(pallete.gameObject);
+	{
+		// Удаляем старую паллету, если она существует
+		if (pallete != null)
+		{
+			Destroy(pallete.gameObject);
 		}
 
-        pallete = Instantiate(PalletePrefab, transform.position, Quaternion.identity);
-        pallete.Anim(PalleteAnimType.LoadingZone);
-    }
+		// Создаём новую паллету
+		pallete = Instantiate(palletePrefab, transform.position, Quaternion.identity);
+
+		// Запускаем анимацию подъёма для паллеты
+		pallete.Anim(PalleteAnimType.LoadingZone);
+	}
 }
