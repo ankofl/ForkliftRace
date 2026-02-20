@@ -68,7 +68,7 @@ public class GameManager : MonoBehaviour
 	private void Delivered(Pallete pallete)
 	{
 		Tooltip.text = "Delivered!";
-		Destroy(pallete.gameObject);
+		pallete.Anim(PalleteAnimType.UnloadingZone);
 
 		Loading.SpawnPallete();
 
