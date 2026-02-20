@@ -125,7 +125,7 @@ public class ForkliftController : MonoBehaviour
 	/// Ссылка на замок паллеты
 	/// </summary>
 	[SerializeField, Tooltip("Ссылка на замок паллеты")]
-	private PaletteLocker Locker;
+	private PalleteLocker Locker;
 
 	/// <summary>
 	/// Панель приборов
