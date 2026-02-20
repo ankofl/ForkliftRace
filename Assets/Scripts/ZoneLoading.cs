@@ -6,9 +6,14 @@ public class ZoneLoading : MonoBehaviour
     private Pallete PalletePrefab;
 
 
-    public void SpawnPallete()
+	public void SpawnPallete(ref Pallete pallete)
     {
-        var pallete = Instantiate(PalletePrefab, transform.position, Quaternion.identity);
+        if(pallete != null)
+        {
+            Destroy(pallete.gameObject);
+		}
+
+        pallete = Instantiate(PalletePrefab, transform.position, Quaternion.identity);
         pallete.Anim(PalleteAnimType.LoadingZone);
     }
 }

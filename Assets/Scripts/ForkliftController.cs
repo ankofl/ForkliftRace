@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+﻿using System;
 using System.Collections;
+using Unity.VisualScripting;
+using UnityEngine;
 using UnityEngine.InputSystem;
-using System;
 
 [RequireComponent(typeof(Rigidbody))]
 public class ForkliftController : MonoBehaviour
@@ -22,6 +23,7 @@ public class ForkliftController : MonoBehaviour
 
 	[SerializeField]
 	private float MaxSpeed = 5f;
+	private float CurrentMaxSpeedK = 1;
 	private float MoveSpeed;
 
 	private float Tachos;
@@ -46,10 +48,8 @@ public class ForkliftController : MonoBehaviour
 	private Wheel WheelBackwardRight;
 
 	[SerializeField]
-	private float Fuel = 60;
-
-	[SerializeField]
 	private float MaxFuel = 60;
+	public float Fuel { get; private set; }
 
 
 	[SerializeField]
@@ -60,14 +60,24 @@ public class ForkliftController : MonoBehaviour
 
 	private void Awake()
 	{
+		Fuel = MaxFuel;
+
 		Rg = GetComponent<Rigidbody>();
 		Locker.Locked += (locked) => PalleteLocked.Invoke(locked);
+
+		StartPosition = transform.position;
+		StartRotation = transform.rotation;
 	}
 	private Rigidbody Rg;
+
+	private Vector3 StartPosition;
+	private Quaternion StartRotation;
 
 	public Action<bool> PalleteLocked;
 
 	public Action<bool> EngineChangeState;
+
+	public Action FuelEnded;
 
 	public bool EngineState
 	{
@@ -118,10 +128,22 @@ public class ForkliftController : MonoBehaviour
 		return angle;
 	}
 
+	public void Restart()
+	{
+		Fuel = MaxFuel;
+		EngineState = false;
+
+		transform.SetPositionAndRotation(StartPosition, StartRotation);
+		fork.transform.localPosition = new Vector3(0, 0, 0);
+		mast.transform.localPosition = new Vector3(0, 0, 0);
+		Locker.State = PalleteLockerState.Stay;
+	}
 
 	void FixedUpdate()
 	{
 		if (Keyboard.current == null) return;
+
+		var currentMaxSpeed = MaxSpeed * CurrentMaxSpeedK;
 
 		if (Keyboard.current.tKey.wasPressedThisFrame && Fuel > 0)
 		{
@@ -159,20 +181,28 @@ public class ForkliftController : MonoBehaviour
 
 		if (Keyboard.current.wKey.isPressed && EngineState)
 		{
-			Tachos = Mathf.Clamp(Tachos + 5 * Time.fixedDeltaTime, MinTachos, MaxTachos);
-			MoveSpeed = Mathf.Clamp(MoveSpeed + Tachos * Time.fixedDeltaTime, -MaxSpeed, MaxSpeed);
+			if (MoveSpeed < 0)
+			{
+				Tachos = Mathf.Clamp(Tachos - 5 * Time.fixedDeltaTime, MinTachos, MaxTachos);
+				MoveSpeed = Mathf.Clamp(MoveSpeed + 5 * Time.fixedDeltaTime, -currentMaxSpeed, 0);
+			}
+			else
+			{
+				Tachos = Mathf.Clamp(Tachos + 5 * Time.fixedDeltaTime, MinTachos, MaxTachos);
+				MoveSpeed = Mathf.Clamp(MoveSpeed + Tachos * Time.fixedDeltaTime, -currentMaxSpeed, currentMaxSpeed);
+			}
 		}
 		else if (Keyboard.current.sKey.isPressed && EngineState)
 		{
 			if(MoveSpeed > 0)
 			{
 				Tachos = Mathf.Clamp(Tachos - 5 * Time.fixedDeltaTime, MinTachos, MaxTachos);
-				MoveSpeed = Mathf.Clamp(MoveSpeed - 5 * Time.fixedDeltaTime, 0, MaxSpeed);
+				MoveSpeed = Mathf.Clamp(MoveSpeed - 5 * Time.fixedDeltaTime, 0, currentMaxSpeed);
 			}
 			else
 			{
 				Tachos = Mathf.Clamp(Tachos + 5 * Time.fixedDeltaTime, MinTachos, MaxTachos);
-				MoveSpeed = Mathf.Clamp(MoveSpeed - Tachos * Time.fixedDeltaTime, -MaxSpeed, MaxSpeed);
+				MoveSpeed = Mathf.Clamp(MoveSpeed - Tachos * Time.fixedDeltaTime, -currentMaxSpeed, currentMaxSpeed);
 			}
 		}
 		else
@@ -195,18 +225,23 @@ public class ForkliftController : MonoBehaviour
 
 			if (MoveSpeed > 0)
 			{
-				MoveSpeed = Mathf.Clamp(MoveSpeed - 1 * Time.fixedDeltaTime, 0, MaxSpeed);
+				MoveSpeed = Mathf.Clamp(MoveSpeed - 1 * Time.fixedDeltaTime, 0, currentMaxSpeed);
 			}
 			else if (MoveSpeed < 0)
 			{
-				MoveSpeed = Mathf.Clamp(MoveSpeed + 1 * Time.fixedDeltaTime, -MaxSpeed, 0);
+				MoveSpeed = Mathf.Clamp(MoveSpeed + 1 * Time.fixedDeltaTime, -currentMaxSpeed, 0);
 			}
 		}
 
 		Fuel = Mathf.Clamp(Fuel - Tachos / MaxTachos * Time.fixedDeltaTime, 0, MaxFuel);
-		if(Fuel == 0)
+		if(Fuel == 0 && EngineState)
 		{
 			EngineState = false;
+			FuelEnded?.Invoke();
+		}
+		else if (Fuel <= MaxFuel / 2)
+		{
+			CurrentMaxSpeedK = Mathf.Clamp(CurrentMaxSpeedK - Time.fixedDeltaTime, 0.5f, 1);
 		}
 
 

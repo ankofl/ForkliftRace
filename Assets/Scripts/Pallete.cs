@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public enum PalleteAnimType
@@ -32,12 +33,16 @@ public class Pallete : MonoBehaviour
 		}
 	}
 
-	public void Anim(PalleteAnimType type)
+	public Task Anim(PalleteAnimType type)
 	{
 		if (currentAnim != null)
 		{
 			StopCoroutine(currentAnim);
 		}
+
+		Tcs?.TrySetResult(true);
+
+		Tcs = new TaskCompletionSource<bool>();
 
 		switch (type)
 		{
@@ -53,7 +58,10 @@ public class Pallete : MonoBehaviour
 				ToKinematic(false);
 				break;
 		}
+
+		return Tcs.Task;
 	}
+	private TaskCompletionSource<bool> Tcs;
 
 	private IEnumerator LoadingAnim()
 	{
@@ -84,6 +92,8 @@ public class Pallete : MonoBehaviour
 		ToKinematic(false);
 
 		currentAnim = null;
+
+		Tcs?.TrySetResult(true);
 	}
 
 	private IEnumerator UnloadingAnim()
@@ -116,7 +126,7 @@ public class Pallete : MonoBehaviour
 
 		currentAnim = null;
 
-		Destroy(gameObject);
+		Tcs?.TrySetResult(true);
 	}
 
 	private void ToKinematic(bool state)

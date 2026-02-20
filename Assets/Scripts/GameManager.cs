@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 
@@ -21,6 +22,8 @@ public class GameManager : MonoBehaviour
     [SerializeField]
 	private ZoneUnloading Unloading;
 
+	private Pallete SpawnedPallete = null;
+
 	private void Awake()
 	{
 		MainCamera = Camera.main;
@@ -31,14 +34,43 @@ public class GameManager : MonoBehaviour
 		Tooltip = MainCamera.GetComponentInChildren<TextMesh>();
 		Tooltip.text = "Startup Engine [T]";
 
-
-		Loading.SpawnPallete();
+		Loading.SpawnPallete(ref SpawnedPallete);
 
 		Unloading.Delivered += Delivered;
 
 
 		Forklift.EngineChangeState += OnEngineChangeState;
-		Forklift.PalleteLocked += OnPalleteLocked; 
+		Forklift.PalleteLocked += OnPalleteLocked;
+		Forklift.FuelEnded += OnFuelEnded;
+	}
+
+
+
+	private void OnFuelEnded()
+	{
+		if (restartRoutine != null)
+			StopCoroutine(restartRoutine);
+
+		restartRoutine = StartCoroutine(RestartRoutine(1, 3));
+	}
+	private Coroutine restartRoutine;
+
+	private IEnumerator RestartRoutine(float duration, float delay = 0)
+	{
+		Fade.SetFade(0, 1, duration, delay);
+
+		yield return new WaitForSeconds(duration + delay);
+
+		if (SpawnedPallete != null)
+		{
+			Destroy(SpawnedPallete.gameObject);
+			SpawnedPallete = null;
+		}
+
+		Forklift.Restart();
+		Loading.SpawnPallete(ref SpawnedPallete);
+
+		Fade.SetFade(1, 0, duration);
 	}
 
 	private void OnEngineChangeState(bool state)
@@ -47,9 +79,13 @@ public class GameManager : MonoBehaviour
 		{
 			Tooltip.text = "Move [WASD] | Up/Down [Q/E]";
 		}
-		else
+		else if(Forklift.Fuel > 0)
 		{
 			Tooltip.text = "Startup Engine [T]";
+		}
+		else if (Forklift.Fuel == 0)
+		{
+			Tooltip.text = "Fuel ended! Restarting...";
 		}
 	}
 
@@ -65,12 +101,12 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
-	private void Delivered(Pallete pallete)
+	private async void Delivered()
 	{
 		Tooltip.text = "Delivered!";
-		pallete.Anim(PalleteAnimType.UnloadingZone);
+		await SpawnedPallete.Anim(PalleteAnimType.UnloadingZone);
 
-		Loading.SpawnPallete();
+		Loading.SpawnPallete(ref SpawnedPallete);
 
 		Unloading.SetTriggerState(true);
 	}

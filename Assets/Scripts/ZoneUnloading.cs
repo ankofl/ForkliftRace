@@ -19,7 +19,7 @@ public class ZoneUnloading : MonoBehaviour
 
 		SetTriggerState(false);
 
-		Delivered?.Invoke(pallete);
+		Delivered?.Invoke();
 	}
 
 	public void SetTriggerState(bool enabled)
@@ -27,5 +27,5 @@ public class ZoneUnloading : MonoBehaviour
 		Trigger.enabled = enabled;
 	}
 
-	public Action<Pallete> Delivered;
+	public Action Delivered;
 }
