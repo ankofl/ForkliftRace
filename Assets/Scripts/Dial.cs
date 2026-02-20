@@ -1,33 +1,8 @@
 using UnityEngine;
 
-public enum DialType
-{
-	/// <summary>
-	/// Без значения
-	/// </summary>
-	None,
-
-	/// <summary>
-	/// Тахометр
-	/// </summary>
-	Tachometer,
-
-	/// <summary>
-	/// Спидометр
-	/// </summary>
-	Speedometer,
-
-	/// <summary>
-	/// Уровень топлива
-	/// </summary>
-	Fuel,
-}
 
 public class Dial : MonoBehaviour
 {
-	[SerializeField, Tooltip("Тип прибора")]
-	private DialType type = DialType.None;
-
 	[SerializeField, Tooltip("Подпись / название прибора")]
 	private string label = "Text";
 

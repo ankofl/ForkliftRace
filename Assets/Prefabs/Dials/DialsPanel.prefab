@@ -362,9 +362,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46a0460f991ea4b4ead70902be3a15d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DialsPanel
-  "Ta\u0441hometer": {fileID: 5603432260706651644}
-  Speedometer: {fileID: 25372616693821844}
-  Fuel: {fileID: 4173178714648646070}
+  tachometer: {fileID: 5603432260706651644}
+  speedometer: {fileID: 25372616693821844}
+  fuel: {fileID: 4173178714648646070}
 --- !u!1001 &290838022398690817
 PrefabInstance:
   m_ObjectHideFlags: 0

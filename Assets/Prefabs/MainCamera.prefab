@@ -207,7 +207,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9066c821252159242b9cde3d082e3692, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FadeController
-  FadeMaterial: {fileID: 2100000, guid: bda6e4811ae501f449b7c247f7d206bd, type: 2}
+  fadeMaterial: {fileID: 2100000, guid: bda6e4811ae501f449b7c247f7d206bd, type: 2}
 --- !u!1 &9158146850437194566
 GameObject:
   m_ObjectHideFlags: 0

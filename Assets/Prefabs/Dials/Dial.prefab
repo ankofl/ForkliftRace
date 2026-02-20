@@ -504,10 +504,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 964a27360ab467245b787acfbe999c6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Dial
-  Type: 0
-  DialText: Text
-  Text: {fileID: 6000441572692863033}
-  Arrow: {fileID: 8525091806701286974}
+  label: Text
+  textMesh: {fileID: 6000441572692863033}
+  arrow: {fileID: 8525091806701286974}
 --- !u!1001 &1052035500710698927
 PrefabInstance:
   m_ObjectHideFlags: 0
