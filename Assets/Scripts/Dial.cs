@@ -2,36 +2,63 @@ using UnityEngine;
 
 public enum DialType
 {
-    None,
+	/// <summary>
+	/// Без значения
+	/// </summary>
+	None,
+
+	/// <summary>
+	/// Тахометр
+	/// </summary>
 	Tachometer,
+
+	/// <summary>
+	/// Спидометр
+	/// </summary>
 	Speedometer,
-    Fuel,
+
+	/// <summary>
+	/// Уровень топлива
+	/// </summary>
+	Fuel,
 }
 
 public class Dial : MonoBehaviour
 {
-    [SerializeField]
-    private DialType Type;
+	[SerializeField, Tooltip("Тип прибора")]
+	private DialType type = DialType.None;
+
+	[SerializeField, Tooltip("Подпись / название прибора")]
+	private string label = "Text";
+
+	[Header("Ссылки на компоненты")]
+	[SerializeField]
+	private TextMesh textMesh = default;
 
 	[SerializeField]
-	private string DialText = "Text";
+	private Transform arrow = default;
 
-	[SerializeField]
-	private TextMesh Text;
-
-	[SerializeField]
-	private Transform Arrow;
+	private const float MinAngle = 60f;
+	private const float MaxAngle = 300f;
 
 	private void OnValidate()
 	{
-		Text.text = DialText;
+		if (textMesh == null) return;
+		textMesh.text = label;
 	}
 
-	public void SetValue(float value)
+	/// <summary>
+	/// Устанавливает значение стрелки прибора.  
+	/// Ожидается нормализованное значение в диапазоне от 0 до 1.
+	/// </summary>
+	/// <param name="normalizedValue">Значение от 0 (минимум) до 1 (максимум)</param>
+	public void SetValue(float normalizedValue)
 	{
-		value = Mathf.Clamp01(value);
+		normalizedValue = Mathf.Clamp01(normalizedValue);
 
-		var y = Mathf.Lerp(60, 300, value);
-		Arrow.localEulerAngles = new Vector3(0, y, 0);
+		float angle = Mathf.Lerp(MinAngle, MaxAngle, normalizedValue);
+
+		if (arrow == null) return;
+		arrow.localEulerAngles = new Vector3(0f, angle, 0f);
 	}
 }
