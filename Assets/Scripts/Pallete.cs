@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 using Zenject;
 
 /// <summary>
-/// Тип анимации паллеты
+/// РўРёРї Р°РЅРёРјР°С†РёРё РїР°Р»Р»РµС‚С‹
 /// </summary>
 public enum PalleteAnimType
 {
@@ -16,10 +16,10 @@ public enum PalleteAnimType
 [RequireComponent(typeof(Rigidbody))]
 public class Pallete : MonoBehaviour
 {
-	// Фабрика Zenject
+	// Р¤Р°Р±СЂРёРєР° Zenject
 	public class Factory : PlaceholderFactory<Pallete> { }
 
-	[Header("Ссылки")]
+	[Header("РЎСЃС‹Р»РєРё")]
 	[SerializeField] private Transform Rotator;
 
 	private List<BoxCollider> Colliders;
@@ -36,11 +36,11 @@ public class Pallete : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Запуск анимации паллеты через async UniTask
+	/// Р—Р°РїСѓСЃРє Р°РЅРёРјР°С†РёРё РїР°Р»Р»РµС‚С‹ С‡РµСЂРµР· async UniTask
 	/// </summary>
 	public async UniTask Anim(PalleteAnimType type)
 	{
-		// Если уже идёт анимация — отменяем её
+		// Р•СЃР»Рё СѓР¶Рµ РёРґС‘С‚ Р°РЅРёРјР°С†РёСЏ вЂ” РѕС‚РјРµРЅСЏРµРј РµС‘
 		if (isAnimating)
 			return;
 

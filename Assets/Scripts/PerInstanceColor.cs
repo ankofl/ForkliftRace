@@ -5,28 +5,28 @@ using UnityEngine;
 public class PerInstanceColor : MonoBehaviour
 {
 	/// <summary>
-	/// ID свойства цвета в шейдере
+	/// ID СЃРІРѕР№СЃС‚РІР° С†РІРµС‚Р° РІ С€РµР№РґРµСЂРµ
 	/// </summary>
 	private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
 
 	/// <summary>
-	/// Цвет для данного экземпляра
+	/// Р¦РІРµС‚ РґР»СЏ РґР°РЅРЅРѕРіРѕ СЌРєР·РµРјРїР»СЏСЂР°
 	/// </summary>
-	[SerializeField, Tooltip("Цвет для данного экземпляра")]
+	[SerializeField, Tooltip("Р¦РІРµС‚ РґР»СЏ РґР°РЅРЅРѕРіРѕ СЌРєР·РµРјРїР»СЏСЂР°")]
 	private Color instanceColor = Color.white;
 
 	/// <summary>
-	/// MeshRenderer объекта
+	/// MeshRenderer РѕР±СЉРµРєС‚Р°
 	/// </summary>
 	private MeshRenderer meshRenderer;
 
 	/// <summary>
-	/// MaterialPropertyBlock для установки цвета на инстанс
+	/// MaterialPropertyBlock РґР»СЏ СѓСЃС‚Р°РЅРѕРІРєРё С†РІРµС‚Р° РЅР° РёРЅСЃС‚Р°РЅСЃ
 	/// </summary>
 	private MaterialPropertyBlock propertyBlock;
 
 	/// <summary>
-	/// Инициализация компонентов
+	/// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РєРѕРјРїРѕРЅРµРЅС‚РѕРІ
 	/// </summary>
 	private void Awake()
 	{
@@ -34,7 +34,7 @@ public class PerInstanceColor : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Обновление при включении объекта
+	/// РћР±РЅРѕРІР»РµРЅРёРµ РїСЂРё РІРєР»СЋС‡РµРЅРёРё РѕР±СЉРµРєС‚Р°
 	/// </summary>
 	private void OnEnable()
 	{
@@ -43,7 +43,7 @@ public class PerInstanceColor : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Обновление в редакторе при изменении значения
+	/// РћР±РЅРѕРІР»РµРЅРёРµ РІ СЂРµРґР°РєС‚РѕСЂРµ РїСЂРё РёР·РјРµРЅРµРЅРёРё Р·РЅР°С‡РµРЅРёСЏ
 	/// </summary>
 	private void OnValidate()
 	{
@@ -52,38 +52,38 @@ public class PerInstanceColor : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Инициализация MeshRenderer и MaterialPropertyBlock
+	/// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ MeshRenderer Рё MaterialPropertyBlock
 	/// </summary>
 	private void Initialize()
 	{
-		// Получаем MeshRenderer компонента
+		// РџРѕР»СѓС‡Р°РµРј MeshRenderer РєРѕРјРїРѕРЅРµРЅС‚Р°
 		if (meshRenderer == null)
 			meshRenderer = GetComponent<MeshRenderer>();
 
-		// Создаём MaterialPropertyBlock, если ещё не создан
+		// РЎРѕР·РґР°С‘Рј MaterialPropertyBlock, РµСЃР»Рё РµС‰С‘ РЅРµ СЃРѕР·РґР°РЅ
 		if (propertyBlock == null)
 			propertyBlock = new MaterialPropertyBlock();
 	}
 
 	/// <summary>
-	/// Применение цвета к этому экземпляру MeshRenderer
+	/// РџСЂРёРјРµРЅРµРЅРёРµ С†РІРµС‚Р° Рє СЌС‚РѕРјСѓ СЌРєР·РµРјРїР»СЏСЂСѓ MeshRenderer
 	/// </summary>
 	private void ApplyColor()
 	{
-		// Проверка на null, если объект ещё не инициализирован
+		// РџСЂРѕРІРµСЂРєР° РЅР° null, РµСЃР»Рё РѕР±СЉРµРєС‚ РµС‰С‘ РЅРµ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅ
 		if (meshRenderer == null)
 			return;
 
-		// Получаем текущие свойства материала
+		// РџРѕР»СѓС‡Р°РµРј С‚РµРєСѓС‰РёРµ СЃРІРѕР№СЃС‚РІР° РјР°С‚РµСЂРёР°Р»Р°
 		meshRenderer.GetPropertyBlock(propertyBlock);
 
-		// Очищаем старые значения
+		// РћС‡РёС‰Р°РµРј СЃС‚Р°СЂС‹Рµ Р·РЅР°С‡РµРЅРёСЏ
 		propertyBlock.Clear();
 
-		// Устанавливаем новый цвет
+		// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РЅРѕРІС‹Р№ С†РІРµС‚
 		propertyBlock.SetColor(BaseColorId, instanceColor);
 
-		// Применяем изменения к MeshRenderer
+		// РџСЂРёРјРµРЅСЏРµРј РёР·РјРµРЅРµРЅРёСЏ Рє MeshRenderer
 		meshRenderer.SetPropertyBlock(propertyBlock);
 	}
 }

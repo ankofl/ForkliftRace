@@ -3,34 +3,34 @@ using UniRx;
 using UnityEngine;
 
 /// <summary>
-/// Возможные состояния механизма фиксации паллеты
+/// Р’РѕР·РјРѕР¶РЅС‹Рµ СЃРѕСЃС‚РѕСЏРЅРёСЏ РјРµС…Р°РЅРёР·РјР° С„РёРєСЃР°С†РёРё РїР°Р»Р»РµС‚С‹
 /// </summary>
 public enum PalleteLockerState
 {
 	/// <summary>
-	/// Ожидание без движения
+	/// РћР¶РёРґР°РЅРёРµ Р±РµР· РґРІРёР¶РµРЅРёСЏ
 	/// </summary>
 	Stay,
 
 	/// <summary>
-	/// Опускание (разблокировка)
+	/// РћРїСѓСЃРєР°РЅРёРµ (СЂР°Р·Р±Р»РѕРєРёСЂРѕРІРєР°)
 	/// </summary>
 	Down,
 
 	/// <summary>
-	/// Поднятие (готовность к фиксации)
+	/// РџРѕРґРЅСЏС‚РёРµ (РіРѕС‚РѕРІРЅРѕСЃС‚СЊ Рє С„РёРєСЃР°С†РёРё)
 	/// </summary>
 	Up
 }
 
 /// <summary>
-/// Компонент фиксации паллеты на вилах погрузчика
+/// РљРѕРјРїРѕРЅРµРЅС‚ С„РёРєСЃР°С†РёРё РїР°Р»Р»РµС‚С‹ РЅР° РІРёР»Р°С… РїРѕРіСЂСѓР·С‡РёРєР°
 /// </summary>
 public class PalleteLocker : MonoBehaviour
 {
 	private PalleteLockerState _state;
 
-	// UniRx поток изменений фиксации
+	// UniRx РїРѕС‚РѕРє РёР·РјРµРЅРµРЅРёР№ С„РёРєСЃР°С†РёРё
 	private Subject<bool> _lockedSubject = new Subject<bool>();
 	public IObservable<bool> LockedStream => _lockedSubject;
 
@@ -49,7 +49,7 @@ public class PalleteLocker : MonoBehaviour
 
 			pallete.Lock(null);
 
-			// Сообщаем через поток
+			// РЎРѕРѕР±С‰Р°РµРј С‡РµСЂРµР· РїРѕС‚РѕРє
 			_lockedSubject.OnNext(false);
 		}
 	}
@@ -64,7 +64,7 @@ public class PalleteLocker : MonoBehaviour
 
 		pallete.Lock(transform);
 
-		// Сообщаем через поток
+		// РЎРѕРѕР±С‰Р°РµРј С‡РµСЂРµР· РїРѕС‚РѕРє
 		_lockedSubject.OnNext(true);
 	}
 

@@ -2,23 +2,23 @@ using UnityEngine;
 
 public class DialsPanel : MonoBehaviour
 {
-	[Header("Приборы")]
-	[SerializeField, Tooltip("Тахометр")]
+	[Header("РџСЂРёР±РѕСЂС‹")]
+	[SerializeField, Tooltip("РўР°С…РѕРјРµС‚СЂ")]
 	private Dial tachometer = default;
 
-	[SerializeField, Tooltip("Спидометр")]
+	[SerializeField, Tooltip("РЎРїРёРґРѕРјРµС‚СЂ")]
 	private Dial speedometer = default;
 
-	[SerializeField, Tooltip("Указатель уровня топлива")]
+	[SerializeField, Tooltip("РЈРєР°Р·Р°С‚РµР»СЊ СѓСЂРѕРІРЅСЏ С‚РѕРїР»РёРІР°")]
 	private Dial fuel = default;
 
 	/// <summary>
-	/// Устанавливает значения всех приборов одновременно.  
-	/// Все значения должны быть нормализованы (в диапазоне 0..1).
+	/// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ Р·РЅР°С‡РµРЅРёСЏ РІСЃРµС… РїСЂРёР±РѕСЂРѕРІ РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ.  
+	/// Р’СЃРµ Р·РЅР°С‡РµРЅРёСЏ РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ РЅРѕСЂРјР°Р»РёР·РѕРІР°РЅС‹ (РІ РґРёР°РїР°Р·РѕРЅРµ 0..1).
 	/// </summary>
-	/// <param name="tachometerValue">Нормализованное значение для тахометра (0..1)</param>
-	/// <param name="speedometerValue">Нормализованное значение для спидометра (0..1)</param>
-	/// <param name="fuelValue">Нормализованное значение для уровня топлива (0..1)</param>
+	/// <param name="tachometerValue">РќРѕСЂРјР°Р»РёР·РѕРІР°РЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РґР»СЏ С‚Р°С…РѕРјРµС‚СЂР° (0..1)</param>
+	/// <param name="speedometerValue">РќРѕСЂРјР°Р»РёР·РѕРІР°РЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РґР»СЏ СЃРїРёРґРѕРјРµС‚СЂР° (0..1)</param>
+	/// <param name="fuelValue">РќРѕСЂРјР°Р»РёР·РѕРІР°РЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РґР»СЏ СѓСЂРѕРІРЅСЏ С‚РѕРїР»РёРІР° (0..1)</param>
 	public void SetValues(
 		float tachometerValue,
 		float speedometerValue,

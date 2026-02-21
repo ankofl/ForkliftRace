@@ -4,30 +4,30 @@ using UnityEngine;
 public class Wheel : MonoBehaviour
 {
 	/// <summary>
-	/// Радиус колеса
+	/// Р Р°РґРёСѓСЃ РєРѕР»РµСЃР°
 	/// </summary>
-	[SerializeField, Tooltip("Радиус колеса")]
+	[SerializeField, Tooltip("Р Р°РґРёСѓСЃ РєРѕР»РµСЃР°")]
 	private float radius = 1;
 
 	/// <summary>
-	/// Текущий угол вращения колеса
+	/// РўРµРєСѓС‰РёР№ СѓРіРѕР» РІСЂР°С‰РµРЅРёСЏ РєРѕР»РµСЃР°
 	/// </summary>
 	private float wheelRotation = 0;
 
 	/// <summary>
-	/// Устанавливает вращение колеса
+	/// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РІСЂР°С‰РµРЅРёРµ РєРѕР»РµСЃР°
 	/// </summary>
-	/// <param name="speed">Скорость движения погрузчика</param>
-	/// <param name="steerWheelAngle">Угол поворота руля в градусах</param>
+	/// <param name="speed">РЎРєРѕСЂРѕСЃС‚СЊ РґРІРёР¶РµРЅРёСЏ РїРѕРіСЂСѓР·С‡РёРєР°</param>
+	/// <param name="steerWheelAngle">РЈРіРѕР» РїРѕРІРѕСЂРѕС‚Р° СЂСѓР»СЏ РІ РіСЂР°РґСѓСЃР°С…</param>
 	public void SetRotation(float speed, float steerWheelAngle)
 	{
-		// Вычисляем смещение вращения колеса за кадр
+		// Р’С‹С‡РёСЃР»СЏРµРј СЃРјРµС‰РµРЅРёРµ РІСЂР°С‰РµРЅРёСЏ РєРѕР»РµСЃР° Р·Р° РєР°РґСЂ
 		float deltaRotation = speed / (radius * 2) * Mathf.Rad2Deg * Time.fixedDeltaTime;
 
-		// Обновляем текущий угол вращения
+		// РћР±РЅРѕРІР»СЏРµРј С‚РµРєСѓС‰РёР№ СѓРіРѕР» РІСЂР°С‰РµРЅРёСЏ
 		wheelRotation += deltaRotation;
 
-		// Применяем вращение и угол поворота к трансформу колеса
+		// РџСЂРёРјРµРЅСЏРµРј РІСЂР°С‰РµРЅРёРµ Рё СѓРіРѕР» РїРѕРІРѕСЂРѕС‚Р° Рє С‚СЂР°РЅСЃС„РѕСЂРјСѓ РєРѕР»РµСЃР°
 		transform.localRotation = Quaternion.Euler(wheelRotation, steerWheelAngle, 0f);
 	}
 }

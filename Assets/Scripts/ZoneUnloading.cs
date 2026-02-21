@@ -5,17 +5,17 @@ using System;
 public class ZoneUnloading : MonoBehaviour
 {
 	/// <summary>
-	/// Поток событий доставки паллеты
+	/// РџРѕС‚РѕРє СЃРѕР±С‹С‚РёР№ РґРѕСЃС‚Р°РІРєРё РїР°Р»Р»РµС‚С‹
 	/// </summary>
 	private Subject<Pallete> deliveredSubject = new Subject<Pallete>();
 
 	/// <summary>
-	/// Публичный IObservable для подписки на доставку паллет
+	/// РџСѓР±Р»РёС‡РЅС‹Р№ IObservable РґР»СЏ РїРѕРґРїРёСЃРєРё РЅР° РґРѕСЃС‚Р°РІРєСѓ РїР°Р»Р»РµС‚
 	/// </summary>
 	public IObservable<Pallete> Delivered => deliveredSubject;
 
 	/// <summary>
-	/// Коллайдер зоны выгрузки
+	/// РљРѕР»Р»Р°Р№РґРµСЂ Р·РѕРЅС‹ РІС‹РіСЂСѓР·РєРё
 	/// </summary>
 	private BoxCollider trigger;
 
@@ -24,7 +24,7 @@ public class ZoneUnloading : MonoBehaviour
 		trigger = GetComponent<BoxCollider>();
 		if (trigger == null)
 		{
-			Debug.LogError("ZoneUnloading: BoxCollider не найден на объекте!");
+			Debug.LogError("ZoneUnloading: BoxCollider РЅРµ РЅР°Р№РґРµРЅ РЅР° РѕР±СЉРµРєС‚Рµ!");
 		}
 		else
 		{
@@ -34,25 +34,25 @@ public class ZoneUnloading : MonoBehaviour
 
 	private void OnTriggerStay(Collider other)
 	{
-		// Проверяем наличие компонента Pallete
+		// РџСЂРѕРІРµСЂСЏРµРј РЅР°Р»РёС‡РёРµ РєРѕРјРїРѕРЅРµРЅС‚Р° Pallete
 		if (!other.TryGetComponent(out Pallete pallete))
 			return;
 
-		// Игнорируем, если паллета заблокирована или поднята выше зоны
+		// РРіРЅРѕСЂРёСЂСѓРµРј, РµСЃР»Рё РїР°Р»Р»РµС‚Р° Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅР° РёР»Рё РїРѕРґРЅСЏС‚Р° РІС‹С€Рµ Р·РѕРЅС‹
 		if (pallete.Locked || pallete.transform.position.y > 0.01f)
 			return;
 
-		// Временно отключаем триггер, чтобы событие не сработало повторно
+		// Р’СЂРµРјРµРЅРЅРѕ РѕС‚РєР»СЋС‡Р°РµРј С‚СЂРёРіРіРµСЂ, С‡С‚РѕР±С‹ СЃРѕР±С‹С‚РёРµ РЅРµ СЃСЂР°Р±РѕС‚Р°Р»Рѕ РїРѕРІС‚РѕСЂРЅРѕ
 		SetTriggerState(false);
 
-		// Публикуем событие в UniRx
+		// РџСѓР±Р»РёРєСѓРµРј СЃРѕР±С‹С‚РёРµ РІ UniRx
 		deliveredSubject.OnNext(pallete);
 	}
 
 	/// <summary>
-	/// Включение/выключение триггера зоны
+	/// Р’РєР»СЋС‡РµРЅРёРµ/РІС‹РєР»СЋС‡РµРЅРёРµ С‚СЂРёРіРіРµСЂР° Р·РѕРЅС‹
 	/// </summary>
-	/// <param name="enabled">Состояние коллайдера</param>
+	/// <param name="enabled">РЎРѕСЃС‚РѕСЏРЅРёРµ РєРѕР»Р»Р°Р№РґРµСЂР°</param>
 	public void SetTriggerState(bool enabled)
 	{
 		if (trigger != null)

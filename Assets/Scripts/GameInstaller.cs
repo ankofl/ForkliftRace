@@ -8,13 +8,13 @@ public class GameInstaller : MonoInstaller
 
 	public override void InstallBindings()
 	{
-		// Singleton для GameManager
+		// Singleton РґР»СЏ GameManager
 		Container.Bind<GameManager>()
 			.FromComponentInHierarchy()
 			.AsSingle()
 			.NonLazy();
 
-		// Компоненты сцены
+		// РљРѕРјРїРѕРЅРµРЅС‚С‹ СЃС†РµРЅС‹
 		Container.Bind<ForkliftController>()
 			.FromComponentInHierarchy()
 			.AsSingle()

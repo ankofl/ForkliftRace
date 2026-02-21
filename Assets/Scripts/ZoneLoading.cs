@@ -14,16 +14,16 @@ public class ZoneLoading : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Создаёт паллету и ждёт окончания анимации загрузки
+	/// РЎРѕР·РґР°С‘С‚ РїР°Р»Р»РµС‚Сѓ Рё Р¶РґС‘С‚ РѕРєРѕРЅС‡Р°РЅРёСЏ Р°РЅРёРјР°С†РёРё Р·Р°РіСЂСѓР·РєРё
 	/// </summary>
 	public async UniTask<Pallete> SpawnPalleteAsync()
 	{
-		// Создаём паллету
+		// РЎРѕР·РґР°С‘Рј РїР°Р»Р»РµС‚Сѓ
 		Pallete pallete = palleteFactory.Create();
 		pallete.transform.position = transform.position;
 		pallete.transform.rotation = Quaternion.identity;
 
-		// Запускаем анимацию загрузки
+		// Р—Р°РїСѓСЃРєР°РµРј Р°РЅРёРјР°С†РёСЋ Р·Р°РіСЂСѓР·РєРё
 		await pallete.Anim(PalleteAnimType.LoadingZone);
 
 		return pallete;

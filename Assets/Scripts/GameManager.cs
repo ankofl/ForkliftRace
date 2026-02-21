@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour
 
 	private void Start()
 	{
-		// Начальное затемнение
+		// РќР°С‡Р°Р»СЊРЅРѕРµ Р·Р°С‚РµРјРЅРµРЅРёРµ
 		fade.SetFade(1f, 0f, 2f, 1f);
 		tooltip.Text = "Startup Engine [T]";
 
@@ -27,25 +27,25 @@ public class GameManager : MonoBehaviour
 
 	private void BindStreams()
 	{
-		// Подписка на состояние двигателя
+		// РџРѕРґРїРёСЃРєР° РЅР° СЃРѕСЃС‚РѕСЏРЅРёРµ РґРІРёРіР°С‚РµР»СЏ
 		forklift.EngineChangeState
 			.AsObservable()
 			.Subscribe(OnEngineStateChanged)
 			.AddTo(disposables);
 
-		// Подписка на фиксацию паллеты
+		// РџРѕРґРїРёСЃРєР° РЅР° С„РёРєСЃР°С†РёСЋ РїР°Р»Р»РµС‚С‹
 		forklift.PalleteLocked
 			.AsObservable()
 			.Subscribe(OnPalleteLocked)
 			.AddTo(disposables);
 
-		// Подписка на окончание топлива
+		// РџРѕРґРїРёСЃРєР° РЅР° РѕРєРѕРЅС‡Р°РЅРёРµ С‚РѕРїР»РёРІР°
 		forklift.FuelEnded
 			.AsObservable()
 			.Subscribe(_ => RestartAsync().Forget())
 			.AddTo(disposables);
 
-		// Подписка на доставку паллеты
+		// РџРѕРґРїРёСЃРєР° РЅР° РґРѕСЃС‚Р°РІРєСѓ РїР°Р»Р»РµС‚С‹
 		zoneUnloading.Delivered
 			.AsObservable()
 			.Subscribe(_ => DeliveredAsync().Forget())
@@ -54,7 +54,7 @@ public class GameManager : MonoBehaviour
 
 	private async void SpawnNewPallete()
 	{
-		// Создаём новую паллету и подписываемся на завершение анимации
+		// РЎРѕР·РґР°С‘Рј РЅРѕРІСѓСЋ РїР°Р»Р»РµС‚Сѓ Рё РїРѕРґРїРёСЃС‹РІР°РµРјСЃСЏ РЅР° Р·Р°РІРµСЂС€РµРЅРёРµ Р°РЅРёРјР°С†РёРё
 		currentPallete = await zoneLoading.SpawnPalleteAsync();
 	}
 
@@ -62,7 +62,7 @@ public class GameManager : MonoBehaviour
 	{
 		tooltip.Text = "Fuel ended! Restarting...";
 
-		// Плавное затемнение
+		// РџР»Р°РІРЅРѕРµ Р·Р°С‚РµРјРЅРµРЅРёРµ
 		await fade.FadeAsync(0f, 1f, 1f);
 
 		if (currentPallete != null)
@@ -75,7 +75,7 @@ public class GameManager : MonoBehaviour
 
 		SpawnNewPallete();
 
-		// Плавное появление
+		// РџР»Р°РІРЅРѕРµ РїРѕСЏРІР»РµРЅРёРµ
 		await fade.FadeAsync(1f, 0f, 1f);
 	}
 
@@ -85,7 +85,7 @@ public class GameManager : MonoBehaviour
 
 		if (currentPallete != null)
 		{
-			// Анимация выгрузки паллеты
+			// РђРЅРёРјР°С†РёСЏ РІС‹РіСЂСѓР·РєРё РїР°Р»Р»РµС‚С‹
 			await currentPallete.Anim(PalleteAnimType.UnloadingZone);
 		}
 
