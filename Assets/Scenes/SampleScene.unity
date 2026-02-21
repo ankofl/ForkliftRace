@@ -141,6 +141,75 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 563f25616e2cb4d4d843e3943922eb68, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZoneLoading
+--- !u!1 &101319606
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 101319608}
+  - component: {fileID: 101319607}
+  m_Layer: 0
+  m_Name: SceneContext
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &101319607
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 101319606}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89715ad69b973a14899afa2c6730b30b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Zenject::Zenject.SceneContext
+  _scriptableObjectInstallers: []
+  _monoInstallers:
+  - {fileID: 1233492235}
+  _installerPrefabs: []
+  _autoRun: 1
+  OnPreInstall:
+    m_PersistentCalls:
+      m_Calls: []
+  OnPostInstall:
+    m_PersistentCalls:
+      m_Calls: []
+  OnPreResolve:
+    m_PersistentCalls:
+      m_Calls: []
+  OnPostResolve:
+    m_PersistentCalls:
+      m_Calls: []
+  _parentNewObjectsUnderSceneContext: 0
+  _contractNames: []
+  _parentContractNames: []
+--- !u!4 &101319608
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 101319606}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!20 &385296443 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 3459423452848563160, guid: 970157c6b77d9c643b9b2c67c1d6c2c0, type: 3}
+  m_PrefabInstance: {fileID: 793725548307221742}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &466579812
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -198,11 +267,82 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6705bd914fa08eb4992f4e2e178dcf28, type: 3}
---- !u!102 &1257020973 stripped
-TextMesh:
-  m_CorrespondingSourceObject: {fileID: 929285640655217724, guid: 970157c6b77d9c643b9b2c67c1d6c2c0, type: 3}
-  m_PrefabInstance: {fileID: 793725548307221742}
+--- !u!114 &1233492235 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8556093137302292146, guid: 6207deec94c16d64ba56b3527e10e82d, type: 3}
+  m_PrefabInstance: {fileID: 1923510134}
   m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a6ccc274a4541548a87eaa250ce209b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameInstaller
+--- !u!1001 &1923510134
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 871805176029338639, guid: 6207deec94c16d64ba56b3527e10e82d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.46965
+      objectReference: {fileID: 0}
+    - target: {fileID: 871805176029338639, guid: 6207deec94c16d64ba56b3527e10e82d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 871805176029338639, guid: 6207deec94c16d64ba56b3527e10e82d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -8.94527
+      objectReference: {fileID: 0}
+    - target: {fileID: 871805176029338639, guid: 6207deec94c16d64ba56b3527e10e82d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 871805176029338639, guid: 6207deec94c16d64ba56b3527e10e82d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 871805176029338639, guid: 6207deec94c16d64ba56b3527e10e82d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 871805176029338639, guid: 6207deec94c16d64ba56b3527e10e82d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 871805176029338639, guid: 6207deec94c16d64ba56b3527e10e82d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 871805176029338639, guid: 6207deec94c16d64ba56b3527e10e82d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 871805176029338639, guid: 6207deec94c16d64ba56b3527e10e82d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1119112822994257874, guid: 6207deec94c16d64ba56b3527e10e82d, type: 3}
+      propertyPath: m_Name
+      value: GameInstaller
+      objectReference: {fileID: 0}
+    - target: {fileID: 8556093137302292146, guid: 6207deec94c16d64ba56b3527e10e82d, type: 3}
+      propertyPath: mainCamera
+      value: 
+      objectReference: {fileID: 385296443}
+    - target: {fileID: 8556093137302292146, guid: 6207deec94c16d64ba56b3527e10e82d, type: 3}
+      propertyPath: palletePrefab
+      value: 
+      objectReference: {fileID: 6682884968333817195, guid: f3a2bdf629453a94da066a94851ba2ba, type: 3}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 6207deec94c16d64ba56b3527e10e82d, type: 3}
 --- !u!114 &2027352035 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 114000011443249758, guid: 6705bd914fa08eb4992f4e2e178dcf28, type: 3}
@@ -457,7 +597,7 @@ PrefabInstance:
     - target: {fileID: 7150307604446004775, guid: 662f62ec223c78e45bd411ab83888a20, type: 3}
       propertyPath: Tooltip
       value: 
-      objectReference: {fileID: 1257020973}
+      objectReference: {fileID: 0}
     - target: {fileID: 7150307604446004775, guid: 662f62ec223c78e45bd411ab83888a20, type: 3}
       propertyPath: Forklift
       value: 
@@ -653,3 +793,5 @@ SceneRoots:
   - {fileID: 7334970652264484652}
   - {fileID: 1260995069324059754}
   - {fileID: 2123189655}
+  - {fileID: 1923510134}
+  - {fileID: 101319608}

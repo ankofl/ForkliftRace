@@ -2,187 +2,82 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Zenject;
+using UniRx;
 
 [RequireComponent(typeof(Rigidbody))]
 public class ForkliftController : MonoBehaviour
 {
 	[Header("Камера")]
-	/// <summary>
-	/// Чувствительность вращения камеры
-	/// </summary>
-	[SerializeField, Tooltip("Чувствительность вращения камеры")]
-	private float sensitivity = 0.3f;
-
-	/// <summary>
-	/// Трансформ камеры
-	/// </summary>
-	[SerializeField, Tooltip("Трансформ камеры")]
-	private Transform CamTran;
+	[SerializeField] private float sensitivity = 0.3f;
+	[SerializeField] private Transform CamTran;
 
 	[Header("Вилы и мачта")]
-	/// <summary>
-	/// Трансформ вил
-	/// </summary>
-	[SerializeField, Tooltip("Трансформ вил")]
-	private Transform fork;
-
-	/// <summary>
-	/// Трансформ мачты
-	/// </summary>
-	[SerializeField, Tooltip("Трансформ мачты")]
-	private Transform mast;
-
-	/// <summary>
-	/// Максимальная скорость подъема вил
-	/// </summary>
-	[SerializeField, Tooltip("Максимальная скорость подъема вил")]
-	private float MaxSpeedLift = 0.3f;
+	[SerializeField] private Transform fork;
+	[SerializeField] private Transform mast;
+	[SerializeField] private float MaxSpeedLift = 0.3f;
 
 	[Header("Движение")]
-	/// <summary>
-	/// Максимальная скорость движения погрузчика
-	/// </summary>
-	[SerializeField, Tooltip("Максимальная скорость движения")]
-	private float MaxSpeed = 5f;
-
-	/// <summary>
-	/// Коэффициент текущей максимальной скорости
-	/// </summary>
+	[SerializeField] private float MaxSpeed = 5f;
 	private float CurrentMaxSpeedK = 1;
-
-	/// <summary>
-	/// Текущая скорость движения погрузчика
-	/// </summary>
 	private float MoveSpeed;
-
-	/// <summary>
-	/// Текущие тахометры двигателя
-	/// </summary>
 	private float Tachos;
-
-	/// <summary>
-	/// Максимальное значение тахометра
-	/// </summary>
-	[SerializeField, Tooltip("Максимальное значение тахометра")]
-	private float MaxTachos = 5f;
-
-	/// <summary>
-	/// Минимальное значение тахометра
-	/// </summary>
-	[SerializeField, Tooltip("Минимальное значение тахометра")]
-	private float MinTachos = 1f;
+	[SerializeField] private float MaxTachos = 5f;
+	[SerializeField] private float MinTachos = 1f;
 
 	[Header("Руль")]
-	/// <summary>
-	/// Трансформ руля
-	/// </summary>
-	[SerializeField, Tooltip("Трансформ руля")]
-	private Transform Stear;
-
-	/// <summary>
-	/// Текущий угол поворота руля
-	/// </summary>
+	[SerializeField] private Transform Stear;
 	private float StearAngle;
 
 	[Header("Колеса")]
-	/// <summary>
-	/// Переднее левое колесо
-	/// </summary>
-	[SerializeField, Tooltip("Переднее левое колесо")]
-	private Wheel WheelForwardLeft;
-
-	/// <summary>
-	/// Переднее правое колесо
-	/// </summary>
-	[SerializeField, Tooltip("Переднее правое колесо")]
-	private Wheel WheelForwardRight;
-
-	/// <summary>
-	/// Заднее левое колесо
-	/// </summary>
-	[SerializeField, Tooltip("Заднее левое колесо")]
-	private Wheel WheelBackwardLeft;
-
-	/// <summary>
-	/// Заднее правое колесо
-	/// </summary>
-	[SerializeField, Tooltip("Заднее правое колесо")]
-	private Wheel WheelBackwardRight;
+	[SerializeField] private Wheel WheelForwardLeft;
+	[SerializeField] private Wheel WheelForwardRight;
+	[SerializeField] private Wheel WheelBackwardLeft;
+	[SerializeField] private Wheel WheelBackwardRight;
 
 	[Header("Топливо")]
-	/// <summary>
-	/// Максимальный запас топлива
-	/// </summary>
-	[SerializeField, Tooltip("Максимальный запас топлива")]
-	private float MaxFuel = 60;
+	[SerializeField] private float MaxFuel = 60f;
+	public ReactiveProperty<float> Fuel { get; } = new ReactiveProperty<float>();
 
-	/// <summary>
-	/// Текущий запас топлива
-	/// </summary>
-	public float Fuel { get; private set; }
+	[Inject] private PalleteLocker Locker;
 
-	[Inject] private PalleteLocker Locker = null!;
+	[SerializeField] private DialsPanel Dials;
 
-	/// <summary>
-	/// Панель приборов
-	/// </summary>
-	[SerializeField, Tooltip("Панель приборов")]
-	private DialsPanel Dials;
-
-	/// <summary>
-	/// Rigidbody погрузчика
-	/// </summary>
 	private Rigidbody Rg;
-
-	/// <summary>
-	/// Начальная позиция погрузчика
-	/// </summary>
 	private Vector3 StartPosition;
-
-	/// <summary>
-	/// Начальная ротация погрузчика
-	/// </summary>
 	private Quaternion StartRotation;
 
-	[Header("События")]
-	/// <summary>
-	/// Событие изменения состояния фиксации паллеты (true — зафиксирована)
-	/// </summary>
-	public Action<bool> PalleteLocked;
+	// ================== RX СОБЫТИЯ ==================
 
-	/// <summary>
-	/// Событие изменения состояния двигателя
-	/// </summary>
-	public Action<bool> EngineChangeState;
+	private Subject<bool> palleteLocked = new Subject<bool>();
+	public IObservable<bool> PalleteLocked => palleteLocked;
 
-	/// <summary>
-	/// Событие окончания топлива
-	/// </summary>
-	public Action FuelEnded;
 
-	[Header("Двигатель")]
-	/// <summary>
-	/// Состояние двигателя
-	/// </summary>
+	// Приватный Subject для отслеживания изменения состояния двигателя
+	private Subject<bool> _engineStateSubject = new Subject<bool>();
+	public IObservable<bool> EngineChangeState => _engineStateSubject;
+
 	public bool EngineState
 	{
 		get => _engineState;
 		set
 		{
 			_engineState = value;
-			EngineChangeState?.Invoke(_engineState);
+			_engineStateSubject.OnNext(_engineState); // уведомляем всех подписчиков
 		}
 	}
-	private bool _engineState = false;
-	/// <summary>
-	/// Инициализация переменных
-	/// </summary>
+	private bool _engineState;
+
+
+	private Subject<Unit> fuelEnded = new Subject<Unit>();
+	public IObservable<Unit> FuelEnded => fuelEnded;
+
+	// =================================================
+
 	private void Awake()
 	{
-		Fuel = MaxFuel;
+		Fuel.Value = MaxFuel;
 
 		Rg = GetComponent<Rigidbody>();
-
 		StartPosition = transform.position;
 		StartRotation = transform.rotation;
 	}
@@ -191,12 +86,12 @@ public class ForkliftController : MonoBehaviour
 	public void Construct(PalleteLocker locker)
 	{
 		Locker = locker;
-		Locker.Locked += (locked) => PalleteLocked?.Invoke(locked);
+
+		Locker.LockedStream
+			.Subscribe(locked => palleteLocked.OnNext(locked))
+			.AddTo(this);
 	}
 
-	/// <summary>
-	/// Обновление камеры
-	/// </summary>
 	private void LateUpdate()
 	{
 		if (Camera.main == null || Mouse.current == null)
@@ -204,15 +99,13 @@ public class ForkliftController : MonoBehaviour
 
 		if (Camera.main.transform.parent == null)
 		{
-			Camera.main.transform.parent = CamTran;
+			Camera.main.transform.SetParent(CamTran);
 			Camera.main.transform.localPosition = Vector3.zero;
 			Camera.main.transform.localRotation = Quaternion.identity;
 		}
 
-		// Дельта мыши
 		Vector2 delta = Mouse.current.delta.ReadValue();
 
-		// Текущие углы камеры
 		Vector3 angles = Camera.main.transform.localEulerAngles;
 		float pitch = NormalizeAngle(angles.x);
 		float yaw = NormalizeAngle(angles.y);
@@ -226,33 +119,23 @@ public class ForkliftController : MonoBehaviour
 		Camera.main.transform.localRotation = Quaternion.Euler(pitch, yaw, 0f);
 	}
 
-	/// <summary>
-	/// Нормализует угол к диапазону [-180;180]
-	/// </summary>
 	private float NormalizeAngle(float angle)
 	{
-		if (angle > 180f)
-			angle -= 360f;
+		if (angle > 180f) angle -= 360f;
 		return angle;
 	}
 
-	/// <summary>
-	/// Перезапуск погрузчика в начальное состояние
-	/// </summary>
 	public void Restart()
 	{
-		Fuel = MaxFuel;
+		Fuel.Value = MaxFuel;
 		EngineState = false;
 
 		transform.SetPositionAndRotation(StartPosition, StartRotation);
-		fork.transform.localPosition = Vector3.zero;
-		mast.transform.localPosition = Vector3.zero;
+		fork.localPosition = Vector3.zero;
+		mast.localPosition = Vector3.zero;
 		Locker.State = PalleteLockerState.Stay;
 	}
 
-	/// <summary>
-	/// Физическое обновление движения и механики погрузчика
-	/// </summary>
 	private void FixedUpdate()
 	{
 		if (Keyboard.current == null)
@@ -260,8 +143,7 @@ public class ForkliftController : MonoBehaviour
 
 		float currentMaxSpeed = MaxSpeed * CurrentMaxSpeedK;
 
-		// Переключение двигателя
-		if (Keyboard.current.tKey.wasPressedThisFrame && Fuel > 0)
+		if (Keyboard.current.tKey.wasPressedThisFrame && Fuel.Value > 0)
 		{
 			EngineState = !EngineState;
 		}
@@ -273,9 +155,6 @@ public class ForkliftController : MonoBehaviour
 		UpdateDials();
 	}
 
-	/// <summary>
-	/// Управление движением вил и мачты
-	/// </summary>
 	private void HandleForkAndMastMovement()
 	{
 		bool up = Keyboard.current.qKey.isPressed && EngineState;
@@ -285,17 +164,15 @@ public class ForkliftController : MonoBehaviour
 		{
 			Locker.State = PalleteLockerState.Up;
 
-			// Поднимаем вилы
-			fork.transform.localPosition = Vector3.MoveTowards(
-				fork.transform.localPosition,
+			fork.localPosition = Vector3.MoveTowards(
+				fork.localPosition,
 				new Vector3(0, 3f, 0),
 				MaxSpeedLift * Time.fixedDeltaTime);
 
-			// Поднимаем мачту если вилы подняты выше 1.5
-			if (fork.transform.localPosition.y > 1.5f)
+			if (fork.localPosition.y > 1.5f)
 			{
-				mast.transform.localPosition = Vector3.MoveTowards(
-					mast.transform.localPosition,
+				mast.localPosition = Vector3.MoveTowards(
+					mast.localPosition,
 					new Vector3(0, 1.5f, 0),
 					MaxSpeedLift * Time.fixedDeltaTime);
 			}
@@ -304,13 +181,13 @@ public class ForkliftController : MonoBehaviour
 		{
 			Locker.State = PalleteLockerState.Down;
 
-			fork.transform.localPosition = Vector3.MoveTowards(
-				fork.transform.localPosition,
+			fork.localPosition = Vector3.MoveTowards(
+				fork.localPosition,
 				Vector3.zero,
 				MaxSpeedLift * Time.fixedDeltaTime);
 
-			mast.transform.localPosition = Vector3.MoveTowards(
-				mast.transform.localPosition,
+			mast.localPosition = Vector3.MoveTowards(
+				mast.localPosition,
 				Vector3.zero,
 				MaxSpeedLift * Time.fixedDeltaTime);
 		}
@@ -320,9 +197,6 @@ public class ForkliftController : MonoBehaviour
 		}
 	}
 
-	/// <summary>
-	/// Управление движением вперед/назад и тахометрами
-	/// </summary>
 	private void HandleDriveMovement(float currentMaxSpeed)
 	{
 		bool forward = Keyboard.current.wKey.isPressed && EngineState;
@@ -332,6 +206,7 @@ public class ForkliftController : MonoBehaviour
 		{
 			if (MoveSpeed < 0)
 			{
+				// Замедление в обратном направлении
 				Tachos = Mathf.Clamp(Tachos - 5 * Time.fixedDeltaTime, MinTachos, MaxTachos);
 				MoveSpeed = Mathf.Clamp(MoveSpeed + 5 * Time.fixedDeltaTime, -currentMaxSpeed, 0);
 			}
@@ -345,6 +220,7 @@ public class ForkliftController : MonoBehaviour
 		{
 			if (MoveSpeed > 0)
 			{
+				// Замедление вперед
 				Tachos = Mathf.Clamp(Tachos - 5 * Time.fixedDeltaTime, MinTachos, MaxTachos);
 				MoveSpeed = Mathf.Clamp(MoveSpeed - 5 * Time.fixedDeltaTime, 0, currentMaxSpeed);
 			}
@@ -360,13 +236,9 @@ public class ForkliftController : MonoBehaviour
 			if (EngineState)
 			{
 				if (Tachos < MinTachos)
-				{
 					Tachos = Mathf.Clamp(Tachos + 5 * Time.fixedDeltaTime, 0, MinTachos);
-				}
 				else
-				{
 					Tachos = Mathf.Clamp(Tachos - 5 * Time.fixedDeltaTime, MinTachos, MaxTachos);
-				}
 			}
 			else
 			{
@@ -374,31 +246,25 @@ public class ForkliftController : MonoBehaviour
 			}
 
 			if (MoveSpeed > 0)
-			{
 				MoveSpeed = Mathf.Clamp(MoveSpeed - 1 * Time.fixedDeltaTime, 0, currentMaxSpeed);
-			}
 			else if (MoveSpeed < 0)
-			{
 				MoveSpeed = Mathf.Clamp(MoveSpeed + 1 * Time.fixedDeltaTime, -currentMaxSpeed, 0);
-			}
 		}
 
 		// Расход топлива
-		Fuel = Mathf.Clamp(Fuel - Tachos / MaxTachos * Time.fixedDeltaTime, 0, MaxFuel);
-		if (Fuel == 0 && EngineState)
+		Fuel.Value = Mathf.Clamp(Fuel.Value - Tachos / MaxTachos * Time.fixedDeltaTime, 0, MaxFuel);
+
+		if (Fuel.Value <= 0f && EngineState)
 		{
 			EngineState = false;
-			FuelEnded?.Invoke();
+			fuelEnded.OnNext(Unit.Default);
 		}
-		else if (Fuel <= MaxFuel / 2)
+		else if (Fuel.Value <= MaxFuel / 2f)
 		{
-			CurrentMaxSpeedK = Mathf.Clamp(CurrentMaxSpeedK - Time.fixedDeltaTime, 0.5f, 1);
+			CurrentMaxSpeedK = Mathf.Clamp(CurrentMaxSpeedK - Time.fixedDeltaTime, 0.5f, 1f);
 		}
 	}
 
-	/// <summary>
-	/// Управление рулем и углом поворота
-	/// </summary>
 	private void HandleSteering()
 	{
 		// Горизонтальное управление
@@ -410,50 +276,45 @@ public class ForkliftController : MonoBehaviour
 
 		if (h == 0)
 		{
-			if (StearAngle > 0)
-				StearAngle = Mathf.Clamp(StearAngle - steerSpeed * Time.fixedDeltaTime, 0, 1);
-			else if (StearAngle < 0)
-				StearAngle = Mathf.Clamp(StearAngle + steerSpeed * Time.fixedDeltaTime, -1, 0);
+			// Возврат руля к центру при отсутствии ввода
+			if (StearAngle > 0f)
+				StearAngle = Mathf.Clamp(StearAngle - steerSpeed * Time.fixedDeltaTime, 0f, 1f);
+			else if (StearAngle < 0f)
+				StearAngle = Mathf.Clamp(StearAngle + steerSpeed * Time.fixedDeltaTime, -1f, 0f);
 		}
 		else if (EngineState)
 		{
-			if (h > 0 && StearAngle < 0)
-				steerSpeed = 1;
-			if (h < 0 && StearAngle > 0)
-				steerSpeed = 1;
+			// Плавная смена направления
+			if (h > 0f && StearAngle < 0f)
+				steerSpeed = 1f;
+			if (h < 0f && StearAngle > 0f)
+				steerSpeed = 1f;
 
 			StearAngle += h * steerSpeed * Time.fixedDeltaTime;
-			StearAngle = Mathf.Clamp(StearAngle, -1, 1);
+			StearAngle = Mathf.Clamp(StearAngle, -1f, 1f);
 		}
 
 		// Визуальный поворот руля
-		float steerWheelAngle = StearAngle * 35;
-		float steerAngle = StearAngle * 270;
-		Stear.localRotation = Quaternion.Euler(0, steerAngle, 0);
+		float steerWheelAngle = StearAngle * 35f;
+		float steerAngle = StearAngle * 270f;
+		Stear.localRotation = Quaternion.Euler(0f, steerAngle, 0f);
 
 		// Вращение колес
 		WheelForwardLeft.SetRotation(MoveSpeed, steerWheelAngle);
 		WheelForwardRight.SetRotation(MoveSpeed, steerWheelAngle);
-		WheelBackwardLeft.SetRotation(MoveSpeed, 0);
-		WheelBackwardRight.SetRotation(MoveSpeed, 0);
+		WheelBackwardLeft.SetRotation(MoveSpeed, 0f);
+		WheelBackwardRight.SetRotation(MoveSpeed, 0f);
 	}
 
-	/// <summary>
-	/// Применение скорости к Rigidbody
-	/// </summary>
 	private void ApplyVelocity()
 	{
-		// Преобразуем в глобальные координаты
 		Vector3 globalVelocity = transform.TransformDirection(new Vector3(0f, 0f, MoveSpeed));
-
-		// Применяем к Rigidbody, сохраняя Y скорость
 		Rg.linearVelocity = new Vector3(globalVelocity.x, Rg.linearVelocity.y, globalVelocity.z);
 
-		// Поворот погрузчика по формуле Ackermann
 		float turnRadius = 2f;
 		float angularY = 0f;
 
-		float steerWheelAngle = StearAngle * 35; // угол рулевых колес
+		float steerWheelAngle = StearAngle * 35f;
 		if (Mathf.Abs(steerWheelAngle) > 0.01f)
 		{
 			float steerRad = steerWheelAngle * Mathf.Deg2Rad;
@@ -463,11 +324,17 @@ public class ForkliftController : MonoBehaviour
 		transform.Rotate(0f, angularY, 0f, Space.World);
 	}
 
-	/// <summary>
-	/// Обновление панели приборов
-	/// </summary>
 	private void UpdateDials()
 	{
-		Dials.SetValues(Tachos / MaxTachos, MathF.Abs(MoveSpeed) / MaxSpeed, Fuel / MaxFuel);
+		Dials.SetValues(
+			Tachos / MaxTachos,
+			Mathf.Abs(MoveSpeed) / MaxSpeed,
+			Fuel.Value / MaxFuel);
+	}
+
+	private void OnDestroy()
+	{
+		_engineStateSubject.OnCompleted();
+		_engineStateSubject.Dispose();
 	}
 }

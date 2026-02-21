@@ -1,3 +1,5 @@
+using System;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Zenject;
 
@@ -5,7 +7,6 @@ public class ZoneLoading : MonoBehaviour
 {
 	private Pallete.Factory palleteFactory;
 
-	// В конструкторе инжектируем только фабрику, а не конкретную паллету
 	[Inject]
 	public void Construct(Pallete.Factory factory)
 	{
@@ -13,23 +14,18 @@ public class ZoneLoading : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Создаёт новую паллету на позиции зоны загрузки
+	/// Создаёт паллету и ждёт окончания анимации загрузки
 	/// </summary>
-	/// <param name="pallete">Ссылка на текущую паллету</param>
-	public void SpawnPallete(ref Pallete pallete)
+	public async UniTask<Pallete> SpawnPalleteAsync()
 	{
-		// Удаляем старую паллету, если она существует
-		if (pallete != null)
-		{
-			Destroy(pallete.gameObject);
-		}
-
-		// Создаём новую паллету через фабрику
-		pallete = palleteFactory.Create();
+		// Создаём паллету
+		Pallete pallete = palleteFactory.Create();
 		pallete.transform.position = transform.position;
 		pallete.transform.rotation = Quaternion.identity;
 
-		// Запускаем анимацию подъёма
-		pallete.Anim(PalleteAnimType.LoadingZone);
+		// Запускаем анимацию загрузки
+		await pallete.Anim(PalleteAnimType.LoadingZone);
+
+		return pallete;
 	}
 }

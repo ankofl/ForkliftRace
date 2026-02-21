@@ -1,141 +1,128 @@
-using System.Collections;
 using UnityEngine;
 using Zenject;
+using UniRx;
+using Cysharp.Threading.Tasks;
 
-/// <summary>
-/// Главный менеджер игры, управляющий состояниями, UI и перезапуском
-/// </summary>
 public class GameManager : MonoBehaviour
 {
-	[Inject] 
-	private ForkliftController Forklift = null!;
+	[Inject] private ForkliftController forklift = null!;
+	[Inject] private ZoneLoading zoneLoading = null!;
+	[Inject] private ZoneUnloading zoneUnloading = null!;
+	[Inject] private FadeController fade = null!;
+	[Inject] private Tooltip tooltip = null!;
 
-	[Inject] 
-	private ZoneLoading Loading = null!;
-
-	[Inject] 
-	private ZoneUnloading Unloading = null!;
-
-	[Inject] 
-	private FadeController Fade = null!;
-
-	[Inject] 
-	private Tooltip Tooltip = null!;
-
-	private Pallete SpawnedPallete = null;
-	private Coroutine restartRoutine;
+	private Pallete currentPallete;
+	private CompositeDisposable disposables = new CompositeDisposable();
 
 	private void Start()
 	{
-		// Плавное появление
-		Fade.SetFade(1, 0, 2, 1);
-		Tooltip.Text = "Startup Engine [T]";
+		// Начальное затемнение
+		fade.SetFade(1f, 0f, 2f, 1f);
+		tooltip.Text = "Startup Engine [T]";
 
-		// Спавн паллеты
-		Loading.SpawnPallete(ref SpawnedPallete);
+		SpawnNewPallete();
+
+		BindStreams();
 	}
 
-	[Inject]
-	public void Construct()
+	private void BindStreams()
 	{
-		// Подписки на события
-		Unloading.Delivered += Delivered;
-		Forklift.EngineChangeState += OnEngineChangeState;
-		Forklift.PalleteLocked += OnPalleteLocked;
-		Forklift.FuelEnded += OnFuelEnded;
+		// Подписка на состояние двигателя
+		forklift.EngineChangeState
+			.AsObservable()
+			.Subscribe(OnEngineStateChanged)
+			.AddTo(disposables);
+
+		// Подписка на фиксацию паллеты
+		forklift.PalleteLocked
+			.AsObservable()
+			.Subscribe(OnPalleteLocked)
+			.AddTo(disposables);
+
+		// Подписка на окончание топлива
+		forklift.FuelEnded
+			.AsObservable()
+			.Subscribe(_ => RestartAsync().Forget())
+			.AddTo(disposables);
+
+		// Подписка на доставку паллеты
+		zoneUnloading.Delivered
+			.AsObservable()
+			.Subscribe(_ => DeliveredAsync().Forget())
+			.AddTo(disposables);
 	}
 
-
-	/// <summary>
-	/// Обработчик окончания топлива
-	/// </summary>
-	private void OnFuelEnded()
+	private async void SpawnNewPallete()
 	{
-		if (restartRoutine != null)
-			StopCoroutine(restartRoutine);
-
-		restartRoutine = StartCoroutine(RestartRoutine(1, 3));
+		// Создаём новую паллету и подписываемся на завершение анимации
+		currentPallete = await zoneLoading.SpawnPalleteAsync();
 	}
 
-	/// <summary>
-	/// Короутина перезапуска сцены
-	/// </summary>
-	private IEnumerator RestartRoutine(float duration, float delay = 0)
+	private async UniTask RestartAsync()
 	{
-		// Запуск затемнения
-		Fade.SetFade(0, 1, duration, delay);
+		tooltip.Text = "Fuel ended! Restarting...";
 
-		// Ожидание завершения затемнения
-		yield return new WaitForSeconds(duration + delay);
+		// Плавное затемнение
+		await fade.FadeAsync(0f, 1f, 1f);
 
-		if (SpawnedPallete != null)
+		if (currentPallete != null)
 		{
-			Destroy(SpawnedPallete.gameObject);
-			SpawnedPallete = null;
+			Destroy(currentPallete.gameObject);
+			currentPallete = null;
 		}
 
-		// Перезапуск погрузчика
-		Forklift.Restart();
+		forklift.Restart();
 
-		// Спавн новой паллеты
-		Loading.SpawnPallete(ref SpawnedPallete);
+		SpawnNewPallete();
 
 		// Плавное появление
-		Fade.SetFade(1, 0, duration);
+		await fade.FadeAsync(1f, 0f, 1f);
 	}
 
-	/// <summary>
-	/// Обработчик изменения состояния двигателя
-	/// </summary>
-	private void OnEngineChangeState(bool state)
+	private async UniTask DeliveredAsync()
+	{
+		tooltip.Text = "Delivered!";
+
+		if (currentPallete != null)
+		{
+			// Анимация выгрузки паллеты
+			await currentPallete.Anim(PalleteAnimType.UnloadingZone);
+		}
+
+		SpawnNewPallete();
+
+		zoneUnloading.SetTriggerState(true);
+	}
+
+	private void OnEngineStateChanged(bool state)
 	{
 		if (state)
 		{
-			Tooltip.Text = "Move [WASD] | Up/Down [Q/E]";
+			tooltip.Text = "Move [WASD] | Up/Down [Q/E]";
 			return;
 		}
 
-		if (Forklift.Fuel > 0)
+		if (forklift.Fuel.Value > 0)
 		{
-			Tooltip.Text = "Startup Engine [T]";
+			tooltip.Text = "Startup Engine [T]";
 			return;
 		}
 
-		Tooltip.Text = "Fuel ended! Restarting...";
+		tooltip.Text = "Fuel ended! Restarting...";
 	}
 
-	/// <summary>
-	/// Обработчик изменения состояния фиксации паллеты
-	/// </summary>
 	private void OnPalleteLocked(bool locked)
 	{
-		if (!Forklift.EngineState)
+		if (!forklift.EngineState)
 			return;
 
-		if (locked)
-		{
-			Tooltip.Text = "Release Pallete [E] on [Unloading Zone]";
-			return;
-		}
-
-		Tooltip.Text = "Pickup Pallete [Q] on [Loading Zone]";
+		tooltip.Text = locked
+			? "Release Pallete [E] on [Unloading Zone]"
+			: "Pickup Pallete [Q] on [Loading Zone]";
 	}
 
-	/// <summary>
-	/// Обработчик успешной доставки паллеты
-	/// </summary>
-	private async void Delivered()
+	private void OnDestroy()
 	{
-		// Текст успешной доставки
-		Tooltip.Text = "Delivered!";
-
-		// Анимация выгрузки
-		await SpawnedPallete.Anim(PalleteAnimType.UnloadingZone);
-
-		// Спавн новой паллеты
-		Loading.SpawnPallete(ref SpawnedPallete);
-
-		// Разрешаем повторную активацию зоны
-		Unloading.SetTriggerState(true);
+		disposables.Dispose();
 	}
 }

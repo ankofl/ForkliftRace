@@ -1,46 +1,52 @@
-using System;
 using UnityEngine;
+using UniRx;
+using System;
 
 public class ZoneUnloading : MonoBehaviour
 {
 	/// <summary>
-	/// Событие срабатывает при доставке паллеты в зону
+	/// Поток событий доставки паллеты
 	/// </summary>
-	public Action Delivered;
+	private Subject<Pallete> deliveredSubject = new Subject<Pallete>();
+
+	/// <summary>
+	/// Публичный IObservable для подписки на доставку паллет
+	/// </summary>
+	public IObservable<Pallete> Delivered => deliveredSubject;
 
 	/// <summary>
 	/// Коллайдер зоны выгрузки
 	/// </summary>
 	private BoxCollider trigger;
 
-	/// <summary>
-	/// Инициализация
-	/// </summary>
 	private void Awake()
 	{
-		// Получаем коллайдер зоны
 		trigger = GetComponent<BoxCollider>();
+		if (trigger == null)
+		{
+			Debug.LogError("ZoneUnloading: BoxCollider не найден на объекте!");
+		}
+		else
+		{
+			trigger.isTrigger = true;
+		}
 	}
 
-	/// <summary>
-	/// Проверка нахождения паллеты в зоне
-	/// </summary>
-	/// <param name="other">Коллайдер объекта</param>
 	private void OnTriggerStay(Collider other)
 	{
-		// Проверяем, есть ли паллета
+		// Проверяем наличие компонента Pallete
 		if (!other.TryGetComponent(out Pallete pallete))
 			return;
 
-		// Игнорируем, если паллета заблокирована или поднята
+		// Игнорируем, если паллета заблокирована или поднята выше зоны
 		if (pallete.Locked || pallete.transform.position.y > 0.01f)
 			return;
 
-		// Отключаем триггер временно
+		// Временно отключаем триггер, чтобы событие не сработало повторно
 		SetTriggerState(false);
 
-		// Вызываем событие доставки
-		Delivered?.Invoke();
+		// Публикуем событие в UniRx
+		deliveredSubject.OnNext(pallete);
 	}
 
 	/// <summary>
@@ -49,6 +55,13 @@ public class ZoneUnloading : MonoBehaviour
 	/// <param name="enabled">Состояние коллайдера</param>
 	public void SetTriggerState(bool enabled)
 	{
-		trigger.enabled = enabled;
+		if (trigger != null)
+			trigger.enabled = enabled;
+	}
+
+	private void OnDestroy()
+	{
+		deliveredSubject.OnCompleted();
+		deliveredSubject.Dispose();
 	}
 }

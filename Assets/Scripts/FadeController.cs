@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class FadeController : MonoBehaviour
@@ -17,7 +18,7 @@ public class FadeController : MonoBehaviour
 	private Coroutine currentFadeCoroutine;
 
 	/// <summary>
-	/// Запуск анимации затемнения
+	/// Запуск анимации затемнения (корутина)
 	/// </summary>
 	/// <param name="from">Начальная прозрачность</param>
 	/// <param name="to">Конечная прозрачность</param>
@@ -25,69 +26,106 @@ public class FadeController : MonoBehaviour
 	/// <param name="delay">Задержка перед началом</param>
 	public void SetFade(float from, float to, float duration, float delay = 0f)
 	{
-		// Если анимация уже идёт, останавливаем её
 		if (currentFadeCoroutine != null)
 		{
 			StopCoroutine(currentFadeCoroutine);
 			currentFadeCoroutine = null;
 		}
 
-		// Запускаем новую корутину
 		currentFadeCoroutine = StartCoroutine(FadeRoutine(from, to, duration, delay));
 	}
 
 	/// <summary>
-	/// Корутина плавного изменения прозрачности
+	/// Асинхронная версия анимации прозрачности
+	/// </summary>
+	/// <param name="from">Начальная прозрачность</param>
+	/// <param name="to">Конечная прозрачность</param>
+	/// <param name="duration">Длительность</param>
+	/// <param name="delay">Задержка перед началом</param>
+	/// <returns>Task, который завершается после окончания анимации</returns>
+	public Task FadeAsync(float from, float to, float duration, float delay = 0f)
+	{
+		var tcs = new TaskCompletionSource<bool>();
+
+		if (currentFadeCoroutine != null)
+		{
+			StopCoroutine(currentFadeCoroutine);
+			currentFadeCoroutine = null;
+		}
+
+		currentFadeCoroutine = StartCoroutine(FadeRoutine(from, to, duration, delay, tcs));
+		return tcs.Task;
+	}
+
+	/// <summary>
+	/// Корутина плавного изменения прозрачности (для SetFade)
 	/// </summary>
 	private IEnumerator FadeRoutine(float from, float to, float duration, float delay)
 	{
-		if (quadRenderer == null)
-			yield break;
+		yield return FadeRoutineInternal(from, to, duration, delay, null);
+	}
 
-		// Обработка задержки перед началом
-		float actualDelay = Mathf.Max(0f, delay);
-		if (actualDelay > 0f)
+	/// <summary>
+	/// Корутина с TaskCompletionSource для FadeAsync
+	/// </summary>
+	private IEnumerator FadeRoutine(float from, float to, float duration, float delay, TaskCompletionSource<bool> tcs)
+	{
+		yield return FadeRoutineInternal(from, to, duration, delay, tcs);
+	}
+
+	/// <summary>
+	/// Внутренняя корутина для плавного изменения альфы
+	/// </summary>
+	private IEnumerator FadeRoutineInternal(float from, float to, float duration, float delay, TaskCompletionSource<bool> tcs)
+	{
+		if (quadRenderer == null)
 		{
-			float waitTime = 0f;
-			while (waitTime < actualDelay)
+			tcs?.SetResult(true);
+			yield break;
+		}
+
+		// Обработка задержки
+		if (delay > 0f)
+		{
+			float elapsedDelay = 0f;
+			while (elapsedDelay < delay)
 			{
-				waitTime += Time.deltaTime;
+				elapsedDelay += Time.deltaTime;
 				yield return null;
 			}
 		}
 
-		// Устанавливаем начальное значение альфы
+		// Начальное значение
 		SetAlpha(from);
 
-		// Плавное изменение прозрачности
 		float elapsed = 0f;
 		while (elapsed < duration)
 		{
 			elapsed += Time.deltaTime;
-			float t = elapsed / duration;
+			float t = Mathf.Clamp01(elapsed / duration);
 			float currentAlpha = Mathf.Lerp(from, to, t);
 			SetAlpha(currentAlpha);
 			yield return null;
 		}
 
-		// Устанавливаем конечное значение альфы
+		// Конечное значение
 		SetAlpha(to);
+
 		currentFadeCoroutine = null;
+		tcs?.SetResult(true);
 	}
 
 	/// <summary>
 	/// Установка прозрачности квадрата
 	/// </summary>
-	/// <param name="value">Значение альфы</param>
 	private void SetAlpha(float value)
 	{
 		if (quadRenderer == null)
 			return;
 
-		// Создаем инстанс материала для конкретного квадрата
-		Material mat = quadRenderer.material;
-		Color currentColor = mat.color;
-		currentColor.a = Mathf.Clamp01(value);
-		mat.color = currentColor;
+		Material mat = quadRenderer.material; // Создаёт инстанс материала
+		Color color = mat.color;
+		color.a = Mathf.Clamp01(value);
+		mat.color = color;
 	}
 }
