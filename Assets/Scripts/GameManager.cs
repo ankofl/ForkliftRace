@@ -10,19 +10,16 @@ public class GameManager : MonoBehaviour
 	/// <summary>
 	/// Основная камера сцены
 	/// </summary>
-	[SerializeField]
 	private Camera MainCamera;
 
 	/// <summary>
 	/// Контроллер затемнения экрана
 	/// </summary>
-	[SerializeField]
 	private FadeController Fade;
 
 	/// <summary>
 	/// Текстовая подсказка игроку
 	/// </summary>
-	[SerializeField]
 	private Tooltip Tooltip;
 
 	/// <summary>

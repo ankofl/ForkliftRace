@@ -7,6 +7,7 @@
 /[Tt]emp/
 /[Oo]bj/
 /[Bb]uild/
+/[Pp]lugins/
 /[Bb]uilds/
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
@@ -97,3 +98,4 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+/Assets/Plugins
