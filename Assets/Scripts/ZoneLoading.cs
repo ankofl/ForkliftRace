@@ -1,12 +1,16 @@
 using UnityEngine;
+using Zenject;
 
 public class ZoneLoading : MonoBehaviour
 {
-	/// <summary>
-	/// Префаб паллеты для спавна
-	/// </summary>
-	[SerializeField, Tooltip("Префаб паллеты для спавна")]
-	private Pallete palletePrefab;
+	private Pallete.Factory palleteFactory;
+
+	// В конструкторе инжектируем только фабрику, а не конкретную паллету
+	[Inject]
+	public void Construct(Pallete.Factory factory)
+	{
+		palleteFactory = factory;
+	}
 
 	/// <summary>
 	/// Создаёт новую паллету на позиции зоны загрузки
@@ -20,10 +24,12 @@ public class ZoneLoading : MonoBehaviour
 			Destroy(pallete.gameObject);
 		}
 
-		// Создаём новую паллету
-		pallete = Instantiate(palletePrefab, transform.position, Quaternion.identity);
+		// Создаём новую паллету через фабрику
+		pallete = palleteFactory.Create();
+		pallete.transform.position = transform.position;
+		pallete.transform.rotation = Quaternion.identity;
 
-		// Запускаем анимацию подъёма для паллеты
+		// Запускаем анимацию подъёма
 		pallete.Anim(PalleteAnimType.LoadingZone);
 	}
 }

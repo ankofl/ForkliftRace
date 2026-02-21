@@ -1,86 +1,50 @@
 using System.Collections;
 using UnityEngine;
+using Zenject;
 
 /// <summary>
 /// Главный менеджер игры, управляющий состояниями, UI и перезапуском
 /// </summary>
 public class GameManager : MonoBehaviour
 {
-	[Header("Основные ссылки")]
-	/// <summary>
-	/// Основная камера сцены
-	/// </summary>
-	private Camera MainCamera;
+	[Inject] 
+	private ForkliftController Forklift = null!;
 
-	/// <summary>
-	/// Контроллер затемнения экрана
-	/// </summary>
-	private FadeController Fade;
+	[Inject] 
+	private ZoneLoading Loading = null!;
 
-	/// <summary>
-	/// Текстовая подсказка игроку
-	/// </summary>
-	private Tooltip Tooltip;
+	[Inject] 
+	private ZoneUnloading Unloading = null!;
 
-	/// <summary>
-	/// Контроллер погрузчика
-	/// </summary>
-	[SerializeField]
-	private ForkliftController Forklift;
+	[Inject] 
+	private FadeController Fade = null!;
 
-	/// <summary>
-	/// Зона загрузки паллет
-	/// </summary>
-	[SerializeField]
-	private ZoneLoading Loading;
+	[Inject] 
+	private Tooltip Tooltip = null!;
 
-	/// <summary>
-	/// Зона выгрузки паллет
-	/// </summary>
-	[SerializeField]
-	private ZoneUnloading Unloading;
-
-	/// <summary>
-	/// Текущая заспавненная паллета
-	/// </summary>
 	private Pallete SpawnedPallete = null;
-
-	/// <summary>
-	/// Короутина перезапуска
-	/// </summary>
 	private Coroutine restartRoutine;
 
-	/// <summary>
-	/// Инициализация менеджера игры
-	/// </summary>
-	private void Awake()
+	private void Start()
 	{
-		// Получаем основную камеру
-		MainCamera = Camera.main;
-
-		// Получаем компонент затемнения
-		Fade = MainCamera.GetComponentInChildren<FadeController>();
-
-		// Запускаем плавное появление
+		// Плавное появление
 		Fade.SetFade(1, 0, 2, 1);
-
-		// Получаем текст подсказки
-		Tooltip = MainCamera.GetComponentInChildren<Tooltip>();
-
-		// Начальный текст
 		Tooltip.Text = "Startup Engine [T]";
 
-		// Спавним первую паллету
+		// Спавн паллеты
 		Loading.SpawnPallete(ref SpawnedPallete);
+	}
 
-		// Подписка на событие доставки
+	[Inject]
+	public void Construct()
+	{
+		// Подписки на события
 		Unloading.Delivered += Delivered;
-
-		// Подписки на события погрузчика
 		Forklift.EngineChangeState += OnEngineChangeState;
 		Forklift.PalleteLocked += OnPalleteLocked;
 		Forklift.FuelEnded += OnFuelEnded;
 	}
+
 
 	/// <summary>
 	/// Обработчик окончания топлива

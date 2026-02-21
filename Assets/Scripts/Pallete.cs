@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using Zenject;
 
 /// <summary>
 /// Тип анимации паллеты
@@ -30,6 +31,12 @@ public enum PalleteAnimType
 [RequireComponent(typeof(Rigidbody))]
 public class Pallete : MonoBehaviour
 {
+	// Вложенная фабрика для Zenject
+	public class Factory : PlaceholderFactory<Pallete>
+	{
+	}
+
+
 	[Header("Ссылки")]
 	/// <summary>
 	/// Трансформ для визуального вращения во время анимации

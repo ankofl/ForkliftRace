@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Zenject;
 
 [RequireComponent(typeof(Rigidbody))]
 public class ForkliftController : MonoBehaviour
@@ -120,12 +121,7 @@ public class ForkliftController : MonoBehaviour
 	/// </summary>
 	public float Fuel { get; private set; }
 
-	[Header("Системные ссылки")]
-	/// <summary>
-	/// Ссылка на замок паллеты
-	/// </summary>
-	[SerializeField, Tooltip("Ссылка на замок паллеты")]
-	private PalleteLocker Locker;
+	[Inject] private PalleteLocker Locker = null!;
 
 	/// <summary>
 	/// Панель приборов
@@ -187,10 +183,15 @@ public class ForkliftController : MonoBehaviour
 
 		Rg = GetComponent<Rigidbody>();
 
-		Locker.Locked += (locked) => PalleteLocked.Invoke(locked);
-
 		StartPosition = transform.position;
 		StartRotation = transform.rotation;
+	}
+
+	[Inject]
+	public void Construct(PalleteLocker locker)
+	{
+		Locker = locker;
+		Locker.Locked += (locked) => PalleteLocked?.Invoke(locked);
 	}
 
 	/// <summary>
