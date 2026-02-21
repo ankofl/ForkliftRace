@@ -4,26 +4,26 @@ using UnityEngine;
 
 public class FadeController : MonoBehaviour
 {
-	[Header("Настройки затемнения")]
+	[Header("РќР°СЃС‚СЂРѕР№РєРё Р·Р°С‚РµРјРЅРµРЅРёСЏ")]
 
 	/// <summary>
-	/// Quad, прозрачность которого будет анимироваться
+	/// Quad, РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚СЊ РєРѕС‚РѕСЂРѕРіРѕ Р±СѓРґРµС‚ Р°РЅРёРјРёСЂРѕРІР°С‚СЊСЃСЏ
 	/// </summary>
-	[SerializeField, Tooltip("Quad, прозрачность которого будет анимироваться")]
+	[SerializeField, Tooltip("Quad, РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚СЊ РєРѕС‚РѕСЂРѕРіРѕ Р±СѓРґРµС‚ Р°РЅРёРјРёСЂРѕРІР°С‚СЊСЃСЏ")]
 	private Renderer quadRenderer = default;
 
 	/// <summary>
-	/// Текущая корутина анимации затемнения
+	/// РўРµРєСѓС‰Р°СЏ РєРѕСЂСѓС‚РёРЅР° Р°РЅРёРјР°С†РёРё Р·Р°С‚РµРјРЅРµРЅРёСЏ
 	/// </summary>
 	private Coroutine currentFadeCoroutine;
 
 	/// <summary>
-	/// Запуск анимации затемнения (корутина)
+	/// Р—Р°РїСѓСЃРє Р°РЅРёРјР°С†РёРё Р·Р°С‚РµРјРЅРµРЅРёСЏ (РєРѕСЂСѓС‚РёРЅР°)
 	/// </summary>
-	/// <param name="from">Начальная прозрачность</param>
-	/// <param name="to">Конечная прозрачность</param>
-	/// <param name="duration">Длительность анимации</param>
-	/// <param name="delay">Задержка перед началом</param>
+	/// <param name="from">РќР°С‡Р°Р»СЊРЅР°СЏ РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚СЊ</param>
+	/// <param name="to">РљРѕРЅРµС‡РЅР°СЏ РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚СЊ</param>
+	/// <param name="duration">Р”Р»РёС‚РµР»СЊРЅРѕСЃС‚СЊ Р°РЅРёРјР°С†РёРё</param>
+	/// <param name="delay">Р—Р°РґРµСЂР¶РєР° РїРµСЂРµРґ РЅР°С‡Р°Р»РѕРј</param>
 	public void SetFade(float from, float to, float duration, float delay = 0f)
 	{
 		if (currentFadeCoroutine != null)
@@ -36,13 +36,13 @@ public class FadeController : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Асинхронная версия анимации прозрачности
+	/// РђСЃРёРЅС…СЂРѕРЅРЅР°СЏ РІРµСЂСЃРёСЏ Р°РЅРёРјР°С†РёРё РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚Рё
 	/// </summary>
-	/// <param name="from">Начальная прозрачность</param>
-	/// <param name="to">Конечная прозрачность</param>
-	/// <param name="duration">Длительность</param>
-	/// <param name="delay">Задержка перед началом</param>
-	/// <returns>Task, который завершается после окончания анимации</returns>
+	/// <param name="from">РќР°С‡Р°Р»СЊРЅР°СЏ РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚СЊ</param>
+	/// <param name="to">РљРѕРЅРµС‡РЅР°СЏ РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚СЊ</param>
+	/// <param name="duration">Р”Р»РёС‚РµР»СЊРЅРѕСЃС‚СЊ</param>
+	/// <param name="delay">Р—Р°РґРµСЂР¶РєР° РїРµСЂРµРґ РЅР°С‡Р°Р»РѕРј</param>
+	/// <returns>Task, РєРѕС‚РѕСЂС‹Р№ Р·Р°РІРµСЂС€Р°РµС‚СЃСЏ РїРѕСЃР»Рµ РѕРєРѕРЅС‡Р°РЅРёСЏ Р°РЅРёРјР°С†РёРё</returns>
 	public Task FadeAsync(float from, float to, float duration, float delay = 0f)
 	{
 		var tcs = new TaskCompletionSource<bool>();
@@ -58,7 +58,7 @@ public class FadeController : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Корутина плавного изменения прозрачности (для SetFade)
+	/// РљРѕСЂСѓС‚РёРЅР° РїР»Р°РІРЅРѕРіРѕ РёР·РјРµРЅРµРЅРёСЏ РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚Рё (РґР»СЏ SetFade)
 	/// </summary>
 	private IEnumerator FadeRoutine(float from, float to, float duration, float delay)
 	{
@@ -66,7 +66,7 @@ public class FadeController : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Корутина с TaskCompletionSource для FadeAsync
+	/// РљРѕСЂСѓС‚РёРЅР° СЃ TaskCompletionSource РґР»СЏ FadeAsync
 	/// </summary>
 	private IEnumerator FadeRoutine(float from, float to, float duration, float delay, TaskCompletionSource<bool> tcs)
 	{
@@ -74,7 +74,7 @@ public class FadeController : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Внутренняя корутина для плавного изменения альфы
+	/// Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РєРѕСЂСѓС‚РёРЅР° РґР»СЏ РїР»Р°РІРЅРѕРіРѕ РёР·РјРµРЅРµРЅРёСЏ Р°Р»СЊС„С‹
 	/// </summary>
 	private IEnumerator FadeRoutineInternal(float from, float to, float duration, float delay, TaskCompletionSource<bool> tcs)
 	{
@@ -84,7 +84,7 @@ public class FadeController : MonoBehaviour
 			yield break;
 		}
 
-		// Обработка задержки
+		// РћР±СЂР°Р±РѕС‚РєР° Р·Р°РґРµСЂР¶РєРё
 		if (delay > 0f)
 		{
 			float elapsedDelay = 0f;
@@ -95,7 +95,7 @@ public class FadeController : MonoBehaviour
 			}
 		}
 
-		// Начальное значение
+		// РќР°С‡Р°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ
 		SetAlpha(from);
 
 		float elapsed = 0f;
@@ -108,7 +108,7 @@ public class FadeController : MonoBehaviour
 			yield return null;
 		}
 
-		// Конечное значение
+		// РљРѕРЅРµС‡РЅРѕРµ Р·РЅР°С‡РµРЅРёРµ
 		SetAlpha(to);
 
 		currentFadeCoroutine = null;
@@ -116,14 +116,14 @@ public class FadeController : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Установка прозрачности квадрата
+	/// РЈСЃС‚Р°РЅРѕРІРєР° РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚Рё РєРІР°РґСЂР°С‚Р°
 	/// </summary>
 	private void SetAlpha(float value)
 	{
 		if (quadRenderer == null)
 			return;
 
-		Material mat = quadRenderer.material; // Создаёт инстанс материала
+		Material mat = quadRenderer.material; // РЎРѕР·РґР°С‘С‚ РёРЅСЃС‚Р°РЅСЃ РјР°С‚РµСЂРёР°Р»Р°
 		Color color = mat.color;
 		color.a = Mathf.Clamp01(value);
 		mat.color = color;
