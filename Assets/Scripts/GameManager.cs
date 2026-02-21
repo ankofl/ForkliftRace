@@ -55,7 +55,10 @@ public class GameManager : MonoBehaviour
 	private async void SpawnNewPallete()
 	{
 		// Создаём новую паллету и подписываемся на завершение анимации
-		currentPallete = await zoneLoading.SpawnPalleteAsync();
+		currentPallete = zoneLoading.SpawnPalleteAsync();
+
+		// Запускаем анимацию загрузки
+		await currentPallete.Anim(PalleteAnimType.LoadingZone);
 	}
 
 	private async UniTask RestartAsync()

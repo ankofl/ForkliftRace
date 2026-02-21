@@ -130,6 +130,12 @@ public class ForkliftController : MonoBehaviour
 		Fuel.Value = MaxFuel;
 		EngineState = false;
 
+		MoveSpeed = 0;
+		StearAngle = 0;
+		Tachos = 0;
+		CurrentMaxSpeedK = 1;
+		Rg.angularVelocity = Vector3.zero;
+		Rg.linearVelocity = Vector3.zero;
 		transform.SetPositionAndRotation(StartPosition, StartRotation);
 		fork.localPosition = Vector3.zero;
 		mast.localPosition = Vector3.zero;

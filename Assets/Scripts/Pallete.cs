@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using Zenject;
+using Unity.VisualScripting;
 
 /// <summary>
 /// Тип анимации паллеты
@@ -66,6 +67,9 @@ public class Pallete : MonoBehaviour
 
 	private async UniTask LoadingAnim()
 	{
+		if (gameObject.IsDestroyed())
+			return;
+
 		ToKinematic(true);
 
 		float duration = 5f;
@@ -75,6 +79,9 @@ public class Pallete : MonoBehaviour
 
 		while (elapsed < duration)
 		{
+			if (gameObject.IsDestroyed())
+				return;
+
 			elapsed += Time.deltaTime;
 			float t = Mathf.Clamp01(elapsed / duration);
 
@@ -93,6 +100,9 @@ public class Pallete : MonoBehaviour
 	{
 		ToKinematic(true);
 
+		if (gameObject.IsDestroyed())
+			return;
+
 		float duration = 5f;
 		float elapsed = 0f;
 		Vector3 startPos = transform.position;
@@ -100,6 +110,9 @@ public class Pallete : MonoBehaviour
 
 		while (elapsed < duration)
 		{
+			if (gameObject.IsDestroyed())
+				return;
+
 			elapsed += Time.deltaTime;
 			float t = Mathf.Clamp01(elapsed / duration);
 
