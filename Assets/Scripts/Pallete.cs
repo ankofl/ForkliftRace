@@ -110,7 +110,6 @@ public class Pallete : MonoBehaviour
 		}
 
 		transform.position = targetPos;
-		ToKinematic(false);
 	}
 
 	private void ToKinematic(bool state)

@@ -87,6 +87,8 @@ public class GameManager : MonoBehaviour
 		{
 			// Анимация выгрузки паллеты
 			await currentPallete.Anim(PalleteAnimType.UnloadingZone);
+
+			Destroy(currentPallete.gameObject);
 		}
 
 		SpawnNewPallete();
